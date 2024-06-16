@@ -161,6 +161,7 @@ if viciousBee then
     tp(hive6, claimHive6)
     wait(2)
     tp(beePosition)
+    wait(50)
     TeleportToRandomServer()
 else
    wait(5)
