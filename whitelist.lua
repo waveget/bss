@@ -29,10 +29,7 @@ return function(webhook, webhookRoleIDs)
             local loadMainScript = loadstring(mainScript)
 
             if loadMainScript then
-                local successExecute, errorExecute = pcall(loadMainScript, webhook, webhookRoleIDs)
-                if not successExecute then
-                    warn("Failed to execute main script:", errorExecute)
-                end
+                loadMainScript()(webhook, webhookRoleIDs)
             else
                 warn("Failed to load main script: Script compilation failed.")
             end
