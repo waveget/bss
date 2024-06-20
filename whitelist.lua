@@ -1,7 +1,6 @@
 -- Whitelisted player IDs
 local whitelistedPlayerIDs = {
     80299238,  
-    987654321,  
 }
 
 
