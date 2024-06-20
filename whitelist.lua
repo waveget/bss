@@ -1,40 +1,7 @@
 -- Whitelisted player IDs
 local whitelistedPlayerIDs = {
-    80299238,  
+    80299238,
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 local Players = game:GetService("Players")
 
@@ -64,10 +31,16 @@ local function CheckWhitelistAndProceed(player)
             gifted = "Role id here"
         }
 
-        local externalScript = game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
-        local loadExternalScript = loadstring(externalScript)
+        -- Attempt to load external script
+        local success, result = pcall(function()
+            local externalScript = game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
+            local loadExternalScript = loadstring(externalScript)
+            loadExternalScript()(webhook, webhookRoleIDs) -- Execute the loaded script passing required arguments
+        end)
 
-        loadExternalScript(webhook, webhookRoleIDs)
+        if not success then
+            warn("Failed to load and execute external script:", result)
+        end
     else
         player:Kick("Account not whitelisted.")
         print("Kicked player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
