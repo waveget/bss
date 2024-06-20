@@ -14,7 +14,7 @@ local function IsPlayerWhitelisted(player)
 end
 
 -- Main function to check whitelist and proceed
-return function(webhook, webhookRoleIDs)
+local function CheckWhitelistAndProceed(webhook, webhookRoleIDs)
     local Players = game:GetService("Players")
     local playerName = Players.LocalPlayer.Name
     local playerID = Players.LocalPlayer.UserId
@@ -41,3 +41,5 @@ return function(webhook, webhookRoleIDs)
         print("Kicked player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
     end
 end
+
+return CheckWhitelistAndProceed
