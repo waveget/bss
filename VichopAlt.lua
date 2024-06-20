@@ -1,6 +1,5 @@
-print("Vichop executed")
-
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
+local webhook = "https://discord.com/api/webhooks/1234567890123456789/your_webhook_token_here"  -- Replace with your webhook URL
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -15,6 +14,12 @@ local plr = game:GetService("Players").LocalPlayer
 local roleIDs = {
     normal = "1253237631072866326",    
     gifted = "1253392095109054617"     
+}
+
+-- Define role IDs for SendMessageEMBED(webhook, embed)
+local webhookRoleIDs = {
+    normal = "123456789012345678",     -- Normal role ID for webhook
+    gifted = "987654321098765432"      -- Gifted role ID for webhook
 }
 
 local function ListAndFilterServers()
@@ -101,15 +106,6 @@ function SendMessageEMBED(url, embed, useWebhook)
                 }
             }
         }
-    }
-
-    -- Determine which role IDs to use based on 'useWebhook' flag
-    local roleIdToUse = useWebhook and webhookRoleIDs or roleIDs
-
-    -- Add role ID fields
-    data.embeds[1].fields[#data.embeds[1].fields + 1] = {
-        ["name"] = "Role ID:",
-        ["value"] = roleIdToUse.gifted
     }
 
     local body = HttpService:JSONEncode(data)
