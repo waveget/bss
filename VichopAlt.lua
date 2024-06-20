@@ -1,17 +1,13 @@
 return function(webhook, webhookRoleIDs)
-    local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-
     local HttpService = game:GetService("HttpService")
     local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
     local TPS = game:GetService("TeleportService")
     local PlaceId = game.PlaceId 
     local Api = "https://games.roblox.com/v1/games/"
     local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
-    local plr = game:GetService("Players").LocalPlayer
 
     -- Define role IDs for SendMessageEMBED
-    local roleIDs = {
+    local roleIDs = webhookRoleIDs or {
         normal = "1253237631072866326",
         gifted = "1253392095109054617"
     }
@@ -88,7 +84,7 @@ return function(webhook, webhookRoleIDs)
                     ["fields"] = {
                         {
                             ["name"] = "Profile:",
-                            ["value"] = "https://www.roblox.com/users/" .. LocalPlayer.UserId .. "/profile"
+                            ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                         },
                         {
                             ["name"] = "Field:",
@@ -121,12 +117,12 @@ return function(webhook, webhookRoleIDs)
 
     local embed = {
         ["title"] = "Vicious bee found!",
-        ["description"] = LocalPlayer.DisplayName .. " has found a vicious bee.",
+        ["description"] = Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
         ["color"] = 65280,
         ["fields"] = {
             {
                 ["name"] = "Profile:",
-                ["value"] = "https://www.roblox.com/users/" .. LocalPlayer.UserId .. "/profile"
+                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
             },
             {
                 ["name"] = "Field:",
@@ -169,8 +165,8 @@ return function(webhook, webhookRoleIDs)
     local function checkField(position)
         for _, field in ipairs(fields) do
             if position.X >= field.minX and position.X <= field.maxX and
-            position.Y >= field.minY and position.Y <= field.maxY and
-            position.Z >= field.minZ and position.Z <= field.maxZ then
+               position.Y >= field.minY and position.Y <= field.maxY and
+               position.Z >= field.minZ and position.Z <= field.maxZ then
                 return field.name
             end
         end
@@ -184,7 +180,7 @@ return function(webhook, webhookRoleIDs)
         
         if viciousBee.Name:match("Gifted") then
             embed.title = "Gifted vicious bee found!"
-            embed.description = LocalPlayer.DisplayName .. " has found a gifted vicious bee."
+            embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
             SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
         else
             SendMessage(url, "<@&" .. roleIDs.normal .. ">")
