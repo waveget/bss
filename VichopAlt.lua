@@ -3,7 +3,6 @@ return function(webhook, webhookRoleIDs)
     local Players = game:GetService("Players")
     local TPS = game:GetService("TeleportService")
     local PlaceId = game.PlaceId 
-    local Api = "https://games.roblox.com/v1/games/"
     local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 
     -- Define role IDs for SendMessageEMBED
@@ -13,7 +12,7 @@ return function(webhook, webhookRoleIDs)
     }
 
     local function ListAndFilterServers()
-        local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        local serversEndpoint = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
         local response = game:HttpGet(serversEndpoint)
         local servers = HttpService:JSONDecode(response)
 
@@ -181,12 +180,12 @@ return function(webhook, webhookRoleIDs)
         if viciousBee.Name:match("Gifted") then
             embed.title = "Gifted vicious bee found!"
             embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-            SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
+            SendMessage(webhook, "<@&" .. roleIDs.gifted .. ">")
         else
-            SendMessage(url, "<@&" .. roleIDs.normal .. ">")
+            SendMessage(webhook, "<@&" .. roleIDs.normal .. ">")
         end
         
-        SendMessageEMBED(url, embed, false)  -- Uses role IDs in 'roleIDs' table
+        SendMessageEMBED(webhook, embed, false)  -- Uses role IDs in 'roleIDs' table
         wait(5)
         SendMessageEMBED(webhook, embed, true)  -- Uses role IDs in 'webhookRoleIDs' table
         wait(120)
