@@ -1,12 +1,9 @@
-local Players = game:GetService("Players")
-
--- Define the whitelisted player IDs
-local whitelistedPlayerIDs = {
-    80299238,  
-}
-
--- Check if player is whitelisted
+-- Define function to check if player is whitelisted
 local function IsPlayerWhitelisted(player)
+    local whitelistedPlayerIDs = {
+        80299238,  -- Example whitelisted player IDs
+    }
+    
     local playerID = player.UserId
     for _, id in ipairs(whitelistedPlayerIDs) do
         if id == playerID then
@@ -16,8 +13,9 @@ local function IsPlayerWhitelisted(player)
     return false
 end
 
--- Proceed if player is whitelisted
+-- Main function to check whitelist and proceed
 local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
+    local Players = game:GetService("Players")
     local playerName = player.Name
     local playerID = player.UserId
     print("Checking whitelist for player: " .. playerName .. " (" .. playerID .. ")")
@@ -26,13 +24,17 @@ local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the main script.")
         
         -- Load and execute the main script
-        local externalScript = game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
-        local loadExternalScript = loadstring(externalScript)
+        local success, externalScript = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
+        if success then
+            local loadExternalScript = loadstring(externalScript)
 
-        if loadExternalScript then
-            loadExternalScript()(webhook, webhookRoleIDs)
+            if loadExternalScript then
+                loadExternalScript()(webhook, webhookRoleIDs)
+            else
+                warn("Failed to load external script: Script compilation failed.")
+            end
         else
-            warn("Failed to load external script.")
+            warn("Failed to load external script: " .. externalScript)
         end
     else
         player:Kick("Account not whitelisted.")
@@ -42,7 +44,6 @@ end
 
 -- Get the local player
 local localPlayer = Players.LocalPlayer 
-
 if localPlayer then
     CheckWhitelistAndProceed(localPlayer, webhook, webhookRoleIDs)
 else
