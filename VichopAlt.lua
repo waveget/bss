@@ -1,5 +1,4 @@
 print("Vichop executed")
-wait(15)
 
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 
