@@ -1,7 +1,39 @@
 -- Whitelisted player IDs
 local whitelistedPlayerIDs = {
-    80299238,
+    80299238,  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 local Players = game:GetService("Players")
 
@@ -24,18 +56,23 @@ local function CheckWhitelistAndProceed(player)
     
     if IsPlayerWhitelisted(player) then
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.")
+        
+        -- Define webhook and role IDs
         local webhook = "https://discord.com/api/webhooks/1253108111351349278/eeYN9I-015aDEo0T9L7ch8aLrZSMCGNKT4M3pRQEn34eLtqM1E9FVN13uIw35dna7S3k"
-
         local webhookRoleIDs = {
             normal = "Role id here",
             gifted = "Role id here"
         }
 
-        -- Attempt to load external script
+        -- Attempt to load and execute external script
         local success, result = pcall(function()
             local externalScript = game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
             local loadExternalScript = loadstring(externalScript)
-            loadExternalScript()(webhook, webhookRoleIDs) -- Execute the loaded script passing required arguments
+            if loadExternalScript then
+                loadExternalScript()(webhook, webhookRoleIDs) -- Execute the loaded script passing required arguments
+            else
+                warn("Failed to load external script.")
+            end
         end)
 
         if not success then
