@@ -15,12 +15,6 @@ local roleIDs = {
     gifted = "1253392095109054617"     
 }
 
--- Define role IDs for SendMessageEMBED(webhook, embed)
-local webhookRoleIDs = {
-    normal = "123456789012345678",     -- Normal role ID for webhook
-    gifted = "987654321098765432"      -- Gifted role ID for webhook
-}
-
 local function ListAndFilterServers()
     local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     local response = game:HttpGet(serversEndpoint)
