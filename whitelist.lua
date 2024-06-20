@@ -14,13 +14,13 @@ local function IsPlayerWhitelisted(player)
 end
 
 -- Main function to check whitelist and proceed
-local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
+return function(webhook, webhookRoleIDs)
     local Players = game:GetService("Players")
-    local playerName = player.Name
-    local playerID = player.UserId
+    local playerName = Players.LocalPlayer.Name
+    local playerID = Players.LocalPlayer.UserId
     print("Checking whitelist for player: " .. playerName .. " (" .. playerID .. ")")
     
-    if IsPlayerWhitelisted(player) then
+    if IsPlayerWhitelisted(Players.LocalPlayer) then
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the main script.")
         
         -- Load and execute the main script
@@ -29,7 +29,10 @@ local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
             local loadExternalScript = loadstring(externalScript)
 
             if loadExternalScript then
-                loadExternalScript()(webhook, webhookRoleIDs)
+                local successMain, errorMain = pcall(loadExternalScript, webhook, webhookRoleIDs)
+                if not successMain then
+                    warn("Failed to execute main script:", errorMain)
+                end
             else
                 warn("Failed to load external script: Script compilation failed.")
             end
@@ -37,15 +40,7 @@ local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
             warn("Failed to load external script: " .. externalScript)
         end
     else
-        player:Kick("Account not whitelisted.")
+        Players.LocalPlayer:Kick("Account not whitelisted.")
         print("Kicked player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
     end
-end
-
--- Get the local player
-local localPlayer = Players.LocalPlayer 
-if localPlayer then
-    CheckWhitelistAndProceed(localPlayer, webhook, webhookRoleIDs)
-else
-    warn("LocalPlayer is nil. Cannot check whitelist.")
 end
