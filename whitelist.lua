@@ -30,7 +30,7 @@ local function CheckWhitelistAndProceed(player, webhook, webhookRoleIDs)
         local loadExternalScript = loadstring(externalScript)
 
         if loadExternalScript then
-            loadExternalScript(webhook, webhookRoleIDs)
+            loadExternalScript()(webhook, webhookRoleIDs)
         else
             warn("Failed to load external script.")
         end
