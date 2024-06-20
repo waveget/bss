@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local TPS = game:GetService("TeleportService")
 local PlaceId = game.PlaceId 
 local Api = "https://games.roblox.com/v1/games/"
-
+local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 local plr = game:GetService("Players").LocalPlayer
 
 -- Define role IDs for SendMessageEMBED
@@ -92,6 +92,10 @@ function SendMessageEMBED(url, embed, useWebhook)
                     {
                         ["name"] = "Field:",
                         ["value"] = embed.fields[2].value
+                    },
+                    {
+                        ["name"] = "HWID:",
+                        ["value"] = HWID
                     }
                 },
                 ["footer"] = {
@@ -126,6 +130,10 @@ local embed = {
         {
             ["name"] = "Field:",
             ["value"] = "____ field"
+        },
+        {
+            ["name"] = "HWID:",
+            ["value"] = HWID
         }
     },
     ["footer"] = {
