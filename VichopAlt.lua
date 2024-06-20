@@ -2,14 +2,22 @@ print("Vichop executed")
 wait(15)
 
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
+local webhook = "https://discord.com/api/webhooks/1234567890123456789/your_webhook_token_here"  -- Replace with your webhook URL
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TPS = game:GetService("TeleportService")
-local PlaceId = game.PlaceId  -- The current game's place ID
-local plr = game:GetService("Players").LocalPlayer  
+local PlaceId = game.PlaceId 
 local Api = "https://games.roblox.com/v1/games/"
+
+local plr = game:GetService("Players").LocalPlayer
+
+-- Define role IDs for SendMessageEMBED
+local roleIDs = {
+    normal = "1253237631072866326",    
+    gifted = "1253392095109054617"     
+}
 
 local function ListAndFilterServers()
     local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
@@ -70,7 +78,7 @@ function SendMessage(url, message)
     print("Sent message: " .. message)
 end
 
-function SendMessageEMBED(url, embed)
+function SendMessageEMBED(url, embed, useWebhook)
     local headers = {
         ["Content-Type"] = "application/json"
     }
@@ -96,13 +104,24 @@ function SendMessageEMBED(url, embed)
             }
         }
     }
+
+    -- Determine which role IDs to use based on 'useWebhook' flag
+    local roleIdToUse = useWebhook and webhookRoleIDs or roleIDs
+
+    -- Add role ID fields
+    data.embeds[1].fields[#data.embeds[1].fields + 1] = {
+        ["name"] = "Role ID:",
+        ["value"] = roleIdToUse.gifted
+    }
+
     local body = HttpService:JSONEncode(data)
     local response = syn.request({
-        Url = url,
+        Url = useWebhook and webhook or url,
         Method = "POST",
         Headers = headers,
         Body = body
     })
+
     print("Sent embed: " .. embed.title)
 end
 
@@ -170,15 +189,14 @@ if viciousBee then
     if viciousBee.Name:match("Gifted") then
         embed.title = "Gifted vicious bee found!"
         embed.description = LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-        local gifted_role_id = "1253392095109054617"
-        SendMessage(url, "<@&" .. gifted_role_id .. ">")
+        SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
     else
-        local role_id = "1253237631072866326"
-        SendMessage(url, "<@&" .. role_id .. ">")
+        SendMessage(url, "<@&" .. roleIDs.normal .. ">")
     end
-    SendMessageEMBED(url, embed)
-    wait (5)
-    SendMessageEMBED(webhook, embed)
+    
+    SendMessageEMBED(url, embed, false)  -- Uses role IDs in 'roleIDs' table
+    wait(5)
+    SendMessageEMBED(webhook, embed, true)  -- Uses role IDs in 'webhookRoleIDs' table
     wait(120)
     TeleportToRandomServer()
 else
