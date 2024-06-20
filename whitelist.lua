@@ -55,16 +55,7 @@ local function CheckWhitelistAndProceed(player)
     print("Checking whitelist for player: " .. playerName .. " (" .. playerID .. ")")
     
     if IsPlayerWhitelisted(player) then
-        print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.")
-        
-        -- Define webhook and role IDs
-        local webhook = "https://discord.com/api/webhooks/1253108111351349278/eeYN9I-015aDEo0T9L7ch8aLrZSMCGNKT4M3pRQEn34eLtqM1E9FVN13uIw35dna7S3k"
-        local webhookRoleIDs = {
-            normal = "Role id here",
-            gifted = "Role id here"
-        }
-
-        -- Attempt to load and execute external script
+        print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.") 
         local success, result = pcall(function()
             local externalScript = game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
             local loadExternalScript = loadstring(externalScript)
