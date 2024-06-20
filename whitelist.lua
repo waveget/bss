@@ -24,20 +24,20 @@ return function(webhook, webhookRoleIDs)
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the main script.")
         
         -- Load and execute the main script
-        local success, externalScript = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
-        if success then
-            local loadExternalScript = loadstring(externalScript)
+        local successMain, mainScript = pcall(game.HttpGet, game, "https://raw.githubusercontent.com/surhan1/bss/main/VichopAlt.lua")
+        if successMain then
+            local loadMainScript = loadstring(mainScript)
 
-            if loadExternalScript then
-                local successMain, errorMain = pcall(loadExternalScript, webhook, webhookRoleIDs)
-                if not successMain then
-                    warn("Failed to execute main script:", errorMain)
+            if loadMainScript then
+                local successExecute, errorExecute = pcall(loadMainScript, webhook, webhookRoleIDs)
+                if not successExecute then
+                    warn("Failed to execute main script:", errorExecute)
                 end
             else
-                warn("Failed to load external script: Script compilation failed.")
+                warn("Failed to load main script: Script compilation failed.")
             end
         else
-            warn("Failed to load external script: " .. externalScript)
+            warn("Failed to load main script:", mainScript)
         end
     else
         Players.LocalPlayer:Kick("Account not whitelisted.")
