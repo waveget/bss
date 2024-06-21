@@ -1,5 +1,4 @@
 -- Main script
-return function(webhook, webhookRoleIDs)
     local whitelistedPlayerIDs = {
         80299238, 
     }
