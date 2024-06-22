@@ -14,19 +14,12 @@ local TPS = game:GetService("TeleportService")
 local PlaceId = game.PlaceId 
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
-
--- Define the first webhook URL and role IDs
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-local roleIDs = {
+
+-- Check if _G.WebhookRoleIds exists, otherwise use default values
+local roleIDs = _G.WebhookRoleIds or {
     normal = "1253237631072866326",
     gifted = "1253392095109054617"
-}
-
--- Define the second webhook URL and role IDs using _G variables (to be defined in a loader script)
-local secondUrl = _G.Webhook or ""
-local secondRoleIDs = _G.WebhookRoleIds or {
-    vicious = "roleid here",
-    giftedvicious = "roleid here"
 }
 
 local function IsPlayerWhitelisted(player)
@@ -153,6 +146,10 @@ local function CheckWhitelistAndProceed(player)
                                 ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                             },
                             {
+                                ["name"] = "Field:",
+                                ["value"] = embed.fields[2].value
+                            },
+                            {
                                 ["name"] = "HWID:",
                                 ["value"] = HWID
                             }
@@ -163,14 +160,6 @@ local function CheckWhitelistAndProceed(player)
                     }
                 }
             }
-
-            -- Only add the "Field" field for the first webhook
-            if not useWebhook then
-                table.insert(data.embeds[1].fields, 2, {
-                    ["name"] = "Field:",
-                    ["value"] = embed.fields[2].value
-                })
-            end
 
             local body = HttpService:JSONEncode(data)
             local response = syn.request({
@@ -200,6 +189,10 @@ local function CheckWhitelistAndProceed(player)
                                 ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                             },
                             {
+                                ["name"] = "Field:",
+                                ["value"] = embed.fields[2].value
+                            },
+                            {
                                 ["name"] = "HWID:",
                                 ["value"] = HWID
                             }
@@ -210,14 +203,6 @@ local function CheckWhitelistAndProceed(player)
                     }
                 }
             }
-
-            -- Only add the "Field" field for the first webhook
-            if not useWebhook then
-                table.insert(data.embeds[1].fields, 2, {
-                    ["name"] = "Field:",
-                    ["value"] = embed.fields[2].value
-                })
-            end
 
             -- Modify the specified embed field
             data.embeds[1].fields[2].value = embed.fields[2].value
@@ -303,27 +288,16 @@ local function CheckWhitelistAndProceed(player)
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                     SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
-                    SendMessage(secondUrl, "<@&" .. secondRoleIDs.giftedvicious .. ">")
                 else
                     SendMessage(url, "<@&" .. roleIDs.normal .. ">")
-                    SendMessage(secondUrl, "<@&" .. secondRoleIDs.vicious .. ">")
                 end
                 
                 local response = SendMessageEMBED(url, embed, true)
-                local secondResponse = SendMessageEMBED(secondUrl, embed, true)
-                
                 local messageId = nil
                 if response and response.Success then
                     messageId = response.Body.message.id
                 else
                     warn("Failed to send message: " .. tostring(response))
-                end
-                
-                local secondMessageId = nil
-                if secondResponse and secondResponse.Success then
-                    secondMessageId = secondResponse.Body.message.id
-                else
-                    warn("Failed to send message to second webhook: " .. tostring(secondResponse))
                 end
 
                 while true do
@@ -333,13 +307,27 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {},
+                            ["fields"] = {
+                                {
+                                    ["name"] = "Username:",
+                                    ["value"] = Players.LocalPlayer.DisplayName
+                                },
+                                {
+                                    ["name"] = "HWID:",
+                                    ["value"] = HWID
+                                }
+                            },
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
-                        SendMessageEMBED(secondUrl, embedViciousGone, true)
+
+                        -- Additional webhook handling with _G.Webhook
+                        if _G.Webhook then
+                            SendMessageEMBED(_G.Webhook, embedViciousGone, true)
+                        end
+                        
                         break
                     end
                     wait(10) -- Check every 10 seconds
