@@ -148,26 +148,16 @@ local function CheckWhitelistAndProceed(player)
                         ["title"] = embed.title,
                         ["description"] = embed.description,
                         ["color"] = embed.color,
-                        ["fields"] = {
-                            {
-                                ["name"] = "Profile:",
-                                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
-                            },
-                            {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value
-                            },
-                            {
-                                ["name"] = "HWID:",
-                                ["value"] = HWID
-                            }
-                        },
                         ["footer"] = {
                             ["text"] = embed.footer.text
                         }
                     }
                 }
             }
+
+            if embed.fields then
+                data.embeds[1].fields = embed.fields
+            end
 
             local body = HttpService:JSONEncode(data)
             
@@ -199,20 +189,6 @@ local function CheckWhitelistAndProceed(player)
                         ["title"] = embed.title,
                         ["description"] = embed.description,
                         ["color"] = embed.color,
-                        ["fields"] = {
-                            {
-                                ["name"] = "Profile:",
-                                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
-                            },
-                            {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value
-                            },
-                            {
-                                ["name"] = "HWID:",
-                                ["value"] = HWID
-                            }
-                        },
                         ["footer"] = {
                             ["text"] = embed.footer.text
                         }
@@ -220,8 +196,14 @@ local function CheckWhitelistAndProceed(player)
                 }
             }
 
+            if embed.fields then
+                data.embeds[1].fields = embed.fields
+            end
+
             -- Modify the specified embed field
-            data.embeds[1].fields[2].value = embed.fields[2].value
+            if embed.fields then
+                data.embeds[1].fields[2].value = embed.fields[2].value
+            end
 
             local body = HttpService:JSONEncode(data)
             
@@ -342,7 +324,7 @@ local function CheckWhitelistAndProceed(player)
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
-                        wait(1)  -- Ensure only one message is sent to Webhook
+                        wait(1)
                         SendMessageEMBED(Webhook, embedViciousGone, true)
                         break
                     end
