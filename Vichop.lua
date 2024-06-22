@@ -1,4 +1,5 @@
--- Main script
+wait(10)
+
 local whitelistedPlayerIDs = {
     6190530680,
     6190533869,
