@@ -121,14 +121,23 @@ local function CheckWhitelistAndProceed(player)
                 ["content"] = message
             }
             local body = HttpService:JSONEncode(data)
-            local response = syn.request({
+            
+            -- Send message to both url and Webhook
+            local response1 = syn.request({
                 Url = url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
+            local response2 = syn.request({
+                Url = Webhook,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+            
             print("Sent message: " .. message)
-            return response
+            return response1, response2
         end
 
         local function SendMessageEMBED(url, embed, useWebhook)
@@ -163,15 +172,23 @@ local function CheckWhitelistAndProceed(player)
             }
 
             local body = HttpService:JSONEncode(data)
-            local response = syn.request({
+            
+            -- Send embed to both url and Webhook
+            local response1 = syn.request({
                 Url = useWebhook and url or "",
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+            local response2 = syn.request({
+                Url = useWebhook and Webhook or "",
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
             print("Sent embed: " .. embed.title)
-            return response
+            return response1, response2
         end
 
         local function EditMessage(url, messageId, embed)
@@ -209,15 +226,23 @@ local function CheckWhitelistAndProceed(player)
             data.embeds[1].fields[2].value = embed.fields[2].value
 
             local body = HttpService:JSONEncode(data)
-            local response = syn.request({
+            
+            -- Edit message on both url and Webhook
+            local response1 = syn.request({
                 Url = url .. "/messages/" .. messageId,
+                Method = "PATCH",
+                Headers = headers,
+                Body = body
+            })
+            local response2 = syn.request({
+                Url = Webhook .. "/messages/" .. messageId,
                 Method = "PATCH",
                 Headers = headers,
                 Body = body
             })
 
             print("Edited message: " .. embed.title)
-            return response
+            return response1, response2
         end
 
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
@@ -293,12 +318,18 @@ local function CheckWhitelistAndProceed(player)
                     SendMessage(url, "<@&" .. roleIDs.normal .. ">")
                 end
                 
-                local response = SendMessageEMBED(url, embed, true)
+                local response1, response2 = SendMessageEMBED(url, embed, true)
                 local messageId = nil
-                if response and response.Success then
-                    messageId = response.Body.message.id
+                if response1 and response1.Success then
+                    messageId = response1.Body.message.id
                 else
-                    warn("Failed to send message: " .. tostring(response))
+                    warn("Failed to send message to url: " .. tostring(response1))
+                end
+                
+                if response2 and response2.Success then
+                    messageId = response2.Body.message.id
+                else
+                    warn("Failed to send message to Webhook: " .. tostring(response2))
                 end
 
                 while true do
@@ -323,6 +354,7 @@ local function CheckWhitelistAndProceed(player)
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
+                        SendMessageEMBED(Webhook, embedViciousGone, true)
                         break
                     end
                     wait(10) -- Check every 10 seconds
