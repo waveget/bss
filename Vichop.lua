@@ -14,15 +14,20 @@ local TPS = game:GetService("TeleportService")
 local PlaceId = game.PlaceId 
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
-local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-local secondUrl = _G.Webhook 
 
+-- Define the first webhook URL and role IDs
+local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 local roleIDs = {
     normal = "1253237631072866326",
     gifted = "1253392095109054617"
 }
 
-local secondRoleIDs = _G.WebhookRoleIds
+-- Define the second webhook URL and role IDs using _G variables (to be defined in a loader script)
+local secondUrl = _G.Webhook or ""
+local secondRoleIDs = _G.WebhookRoleIds or {
+    vicious = "roleid here",
+    giftedvicious = "roleid here"
+}
 
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
@@ -159,6 +164,14 @@ local function CheckWhitelistAndProceed(player)
                 }
             }
 
+            -- Only add the "Field" field for the first webhook
+            if not useWebhook then
+                table.insert(data.embeds[1].fields, 2, {
+                    ["name"] = "Field:",
+                    ["value"] = embed.fields[2].value
+                })
+            end
+
             local body = HttpService:JSONEncode(data)
             local response = syn.request({
                 Url = useWebhook and url or "",
@@ -198,6 +211,17 @@ local function CheckWhitelistAndProceed(player)
                 }
             }
 
+            -- Only add the "Field" field for the first webhook
+            if not useWebhook then
+                table.insert(data.embeds[1].fields, 2, {
+                    ["name"] = "Field:",
+                    ["value"] = embed.fields[2].value
+                })
+            end
+
+            -- Modify the specified embed field
+            data.embeds[1].fields[2].value = embed.fields[2].value
+
             local body = HttpService:JSONEncode(data)
             local response = syn.request({
                 Url = url .. "/messages/" .. messageId,
@@ -222,6 +246,10 @@ local function CheckWhitelistAndProceed(player)
                     ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                 },
                 {
+                    ["name"] = "Field:",
+                    ["value"] = "____ field"
+                },
+                {
                     ["name"] = "HWID:",
                     ["value"] = HWID
                 }
@@ -232,6 +260,15 @@ local function CheckWhitelistAndProceed(player)
         }
 
         local workspace = game:GetService("Workspace")
+
+        local fields = {
+            {name = "Spider", minX = -115.63, maxX = 24.37, minY = -4.52, maxY = 45.48, minZ = -78.90, maxZ = 61.10},
+            {name = "Clover", minX = 100.40, maxX = 210.40, minY = 8.98, maxY = 58.98, minZ = 137.69, maxZ = 247.69},
+            {name = "Mountain Top", minX = 7.13, maxX = 147.13, minY = 151.48, maxY = 201.48, minZ = -240.58, maxZ = -100.58},
+            {name = "Cactus", minX = -261.56, maxX = -111.56, minY = 43.48, maxY = 93.48, minZ = -176.35, maxZ = -26.35},
+            {name = "Rose", minX = -405.28, maxX = -255.28, minY = -4.57, maxY = 45.43, minZ = 49.72, maxZ = 199.72},
+            {name = "Pepper", minX = -567.10, maxX = -417.10, minY = 98.68, maxY = 148.68, minZ = 459.48, maxZ = 609.48}
+        }
 
         local function findViciousBee()
             local monsters = workspace:FindFirstChild("Monsters")
@@ -246,8 +283,14 @@ local function CheckWhitelistAndProceed(player)
         end
 
         local function checkField(position)
-            -- Replace this with your actual logic to check the field based on the position
-            return "SomeField"
+            for _, field in ipairs(fields) do
+                if position.X >= field.minX and position.X <= field.maxX and
+                   position.Y >= field.minY and position.Y <= field.maxY and
+                   position.Z >= field.minZ and position.Z <= field.maxZ then
+                    return field.name
+                end
+            end
+            return "Unknown"
         end
 
         local function monitorViciousBee()
@@ -273,7 +316,7 @@ local function CheckWhitelistAndProceed(player)
                 if response and response.Success then
                     messageId = response.Body.message.id
                 else
-                    warn("Failed to send message to first webhook: " .. tostring(response))
+                    warn("Failed to send message: " .. tostring(response))
                 end
                 
                 local secondMessageId = nil
@@ -290,16 +333,7 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {
-                                {
-                                    ["name"] = "Username:",
-                                    ["value"] = Players.LocalPlayer.DisplayName
-                                },
-                                {
-                                    ["name"] = "HWID:",
-                                    ["value"] = HWID
-                                }
-                            },
+                            ["fields"] = {},
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
