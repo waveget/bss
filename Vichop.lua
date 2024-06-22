@@ -245,6 +245,11 @@ local function CheckWhitelistAndProceed(player)
             return nil, nil 
         end
 
+        local function checkField(position)
+            -- Replace this with your actual logic to check the field based on the position
+            return "SomeField"
+        end
+
         local function monitorViciousBee()
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
