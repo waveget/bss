@@ -238,7 +238,6 @@ local function CheckWhitelistAndProceed(player)
             if viciousBee then
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
-                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                     SendMessage(localWebhook, "<@&" .. globalRoleIDs.giftedvicious .. ">")
                     SendMessageEMBED(localWebhook, embed, true)
                 else
@@ -255,16 +254,6 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {
-                                {
-                                    ["name"] = "Username:",
-                                    ["value"] = Players.LocalPlayer.DisplayName
-                                },
-                                {
-                                    ["name"] = "HWID:",
-                                    ["value"] = HWID
-                                }
-                            },
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
