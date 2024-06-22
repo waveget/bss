@@ -242,7 +242,7 @@ local function CheckWhitelistAndProceed(player)
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
                 local field = checkField(beePosition)
-                embed.fields[2].value = field .. " field alive"
+                embed.fields[2].value = field .. " Field"
                 
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
@@ -273,7 +273,7 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee and not sentViciousGoneMessage then
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
-                            ["description"] = Players.LocalPlayer.DisplayName .. "'vicious disappeared",
+                            ["description"] = Players.LocalPlayer.DisplayName .. " has no vicious bee.",
                             ["color"] = 16711680, -- Red color
                             ["footer"] = {
                                 ["text"] = currentTime
@@ -282,13 +282,16 @@ local function CheckWhitelistAndProceed(player)
                         SendMessageEMBED(url, embedViciousGone, true)
                         sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
+                    if not viciousBee then
+                        break
+                    end
                     wait(10) -- Check every 10 seconds
                 end
 
-                TeleportToRandomServer()
+                TeleportToRandomServer()  -- Teleport to a random server after vicious bee disappears
             else
                 wait(5)
-                TeleportToRandomServer()
+                TeleportToRandomServer()  -- Teleport to a random server if no vicious bee is found
             end
         end
 
