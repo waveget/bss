@@ -1,6 +1,4 @@
-
-
-local whitelistedPlayerIDs = {
+ocal whitelistedPlayerIDs = {
     6190530680,
     6190533869,
     6190538759,
@@ -222,6 +220,9 @@ local function CheckWhitelistAndProceed(player)
                 }
             }
 
+            -- Modify the specified embed field
+            data.embeds[1].fields[2].value = embed.fields[2].value
+
             local body = HttpService:JSONEncode(data)
             
             -- Edit message on both url and Webhook
@@ -336,12 +337,22 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {},
+                            ["fields"] = {
+                                {
+                                    ["name"] = "Username:",
+                                    ["value"] = Players.LocalPlayer.DisplayName
+                                },
+                                {
+                                    ["name"] = "HWID:",
+                                    ["value"] = HWID
+                                }
+                            },
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
+                        wait(1)
                         SendMessageEMBED(Webhook, embedViciousGone, true)
                         break
                     end
