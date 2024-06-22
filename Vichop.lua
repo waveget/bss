@@ -1,4 +1,5 @@
-ocal whitelistedPlayerIDs = {
+
+local whitelistedPlayerIDs = {
     6190530680,
     6190533869,
     6190538759,
