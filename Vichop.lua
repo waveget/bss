@@ -221,12 +221,16 @@ local function CheckWhitelistAndProceed(player)
             
             SendMessageEMBED(url, embed, true)
             wait(5)
-            SendMessageEMBED(webhook, embed, true)
+            SendMessageEMBED(webhook, embed, true)	
             wait(120)
             TeleportToRandomServer()
+	    wait(10)
+	    TeleportToRandomServer()
         else
             wait(5)
             TeleportToRandomServer()
+	    wait(10)
+	    TeleportToRandomServer()
         end
     else
         -- player:Kick("Account not whitelisted.")
