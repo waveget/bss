@@ -1,6 +1,10 @@
 -- Main script
     local whitelistedPlayerIDs = {
-        80299238, 
+        80299238,
+        6190530680,
+        6190533869,
+        6190538759,
+        6190541922,
     }
 
     local HttpService = game:GetService("HttpService")
