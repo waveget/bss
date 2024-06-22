@@ -1,4 +1,4 @@
-wait(10)
+task.wait(15)
 
 local whitelistedPlayerIDs = {
     6190530680,
