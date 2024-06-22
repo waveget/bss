@@ -1,3 +1,4 @@
+task.wait(15)
 
 local whitelistedPlayerIDs = {
     6190530680,
@@ -120,23 +121,14 @@ local function CheckWhitelistAndProceed(player)
                 ["content"] = message
             }
             local body = HttpService:JSONEncode(data)
-            
-            -- Send message to both url and Webhook
-            local response1 = syn.request({
+            local response = syn.request({
                 Url = url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
-            local response2 = syn.request({
-                Url = Webhook,
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-            
             print("Sent message: " .. message)
-            return response1, response2
+            return response
         end
 
         local function SendMessageEMBED(url, embed, useWebhook)
@@ -155,10 +147,6 @@ local function CheckWhitelistAndProceed(player)
                                 ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                             },
                             {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value
-                            },
-                            {
                                 ["name"] = "HWID:",
                                 ["value"] = HWID
                             }
@@ -171,23 +159,15 @@ local function CheckWhitelistAndProceed(player)
             }
 
             local body = HttpService:JSONEncode(data)
-            
-            -- Send embed to both url and Webhook
-            local response1 = syn.request({
+            local response = syn.request({
                 Url = useWebhook and url or "",
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-            local response2 = syn.request({
-                Url = useWebhook and Webhook or "",
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
             print("Sent embed: " .. embed.title)
-            return response1, response2
+            return response
         end
 
         local function EditMessage(url, messageId, embed)
@@ -206,10 +186,6 @@ local function CheckWhitelistAndProceed(player)
                                 ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                             },
                             {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value
-                            },
-                            {
                                 ["name"] = "HWID:",
                                 ["value"] = HWID
                             }
@@ -221,27 +197,16 @@ local function CheckWhitelistAndProceed(player)
                 }
             }
 
-            -- Modify the specified embed field
-            data.embeds[1].fields[2].value = embed.fields[2].value
-
             local body = HttpService:JSONEncode(data)
-            
-            -- Edit message on both url and Webhook
-            local response1 = syn.request({
+            local response = syn.request({
                 Url = url .. "/messages/" .. messageId,
-                Method = "PATCH",
-                Headers = headers,
-                Body = body
-            })
-            local response2 = syn.request({
-                Url = Webhook .. "/messages/" .. messageId,
                 Method = "PATCH",
                 Headers = headers,
                 Body = body
             })
 
             print("Edited message: " .. embed.title)
-            return response1, response2
+            return response
         end
 
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
@@ -256,10 +221,6 @@ local function CheckWhitelistAndProceed(player)
                     ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                 },
                 {
-                    ["name"] = "Field:",
-                    ["value"] = "____ field"
-                },
-                {
                     ["name"] = "HWID:",
                     ["value"] = HWID
                 }
@@ -270,15 +231,6 @@ local function CheckWhitelistAndProceed(player)
         }
 
         local workspace = game:GetService("Workspace")
-
-        local fields = {
-            {name = "Spider", minX = -115.63, maxX = 24.37, minY = -4.52, maxY = 45.48, minZ = -78.90, maxZ = 61.10},
-            {name = "Clover", minX = 100.40, maxX = 210.40, minY = 8.98, maxY = 58.98, minZ = 137.69, maxZ = 247.69},
-            {name = "Mountain Top", minX = 7.13, maxX = 147.13, minY = 151.48, maxY = 201.48, minZ = -240.58, maxZ = -100.58},
-            {name = "Cactus", minX = -261.56, maxX = -111.56, minY = 43.48, maxY = 93.48, minZ = -176.35, maxZ = -26.35},
-            {name = "Rose", minX = -405.28, maxX = -255.28, minY = -4.57, maxY = 45.43, minZ = 49.72, maxZ = 199.72},
-            {name = "Pepper", minX = -567.10, maxX = -417.10, minY = 98.68, maxY = 148.68, minZ = 459.48, maxZ = 609.48}
-        }
 
         local function findViciousBee()
             local monsters = workspace:FindFirstChild("Monsters")
@@ -292,23 +244,9 @@ local function CheckWhitelistAndProceed(player)
             return nil, nil 
         end
 
-        local function checkField(position)
-            for _, field in ipairs(fields) do
-                if position.X >= field.minX and position.X <= field.maxX and
-                   position.Y >= field.minY and position.Y <= field.maxY and
-                   position.Z >= field.minZ and position.Z <= field.maxZ then
-                    return field.name
-                end
-            end
-            return "Unknown"
-        end
-
         local function monitorViciousBee()
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
-                local field = checkField(beePosition)
-                embed.fields[2].value = field .. " field alive"
-                
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
@@ -317,18 +255,12 @@ local function CheckWhitelistAndProceed(player)
                     SendMessage(url, "<@&" .. roleIDs.normal .. ">")
                 end
                 
-                local response1, response2 = SendMessageEMBED(url, embed, true)
+                local response = SendMessageEMBED(url, embed, true)
                 local messageId = nil
-                if response1 and response1.Success then
-                    messageId = response1.Body.message.id
+                if response and response.Success then
+                    messageId = response.Body.message.id
                 else
-                    warn("Failed to send message to url: " .. tostring(response1))
-                end
-                
-                if response2 and response2.Success then
-                    messageId = response2.Body.message.id
-                else
-                    warn("Failed to send message to Webhook: " .. tostring(response2))
+                    warn("Failed to send message: " .. tostring(response))
                 end
 
                 while true do
@@ -338,21 +270,10 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {
-                                {
-                                    ["name"] = "Username:",
-                                    ["value"] = Players.LocalPlayer.DisplayName
-                                },
-                                {
-                                    ["name"] = "HWID:",
-                                    ["value"] = HWID
-                                }
-                            },
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
-                        SendMessageEMBED(url, embedViciousGone, true)
                         SendMessageEMBED(Webhook, embedViciousGone, true)
                         break
                     end
