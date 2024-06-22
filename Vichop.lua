@@ -15,17 +15,14 @@ local PlaceId = game.PlaceId
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-local secondUrl = _G.Webhook or "https://discord.com/api/webhooks/secondWebhookID" -- Replace with your second webhook URL
+local secondUrl = _G.Webhook 
 
 local roleIDs = {
     normal = "1253237631072866326",
     gifted = "1253392095109054617"
 }
 
-local secondRoleIDs = _G.WebhookRoleIds or {
-    vicious = "roleIdForVicious",
-    giftedvicious = "roleIdForGiftedVicious"
-}
+local secondRoleIDs = _G.WebhookRoleIds
 
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
