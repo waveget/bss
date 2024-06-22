@@ -1,3 +1,4 @@
+-- Define the list of whitelisted player IDs
 local whitelistedPlayerIDs = {
     6190530680,
     6190533869,
@@ -6,6 +7,7 @@ local whitelistedPlayerIDs = {
     80299238,
 }
 
+-- Load necessary services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TPS = game:GetService("TeleportService")
@@ -13,16 +15,16 @@ local PlaceId = game.PlaceId
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 
--- Local webhook URL
+-- Local webhook URL (Update this with your actual local webhook URL)
 local localWebhook = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 
--- Ensure _G variables are only set if they are not already defined
+-- Check if _G.Webhook is defined and use it if available
 local globalWebhook = _G.Webhook or nil
-local globalRoleIDs = _G.WebhookRoleIds or {
-    normal = "Role Undefined",
-    gifted = "Role Undefined"
-}
 
+-- Check if _G.WebhookRoleIds is defined, otherwise use an empty table
+local globalRoleIDs = _G.WebhookRoleIds or {}
+
+-- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
     for _, id in ipairs(whitelistedPlayerIDs) do
@@ -33,6 +35,7 @@ local function IsPlayerWhitelisted(player)
     return false
 end
 
+-- Function to list and filter servers
 local function ListAndFilterServers()
     local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     local success, response = pcall(function()
@@ -58,6 +61,7 @@ local function ListAndFilterServers()
     return filteredServers
 end
 
+-- Function to teleport to a random server
 local function TeleportToRandomServer()
     local plr = game.Players.LocalPlayer
     local filteredServers = ListAndFilterServers()
@@ -90,6 +94,7 @@ local function TeleportToRandomServer()
     end
 end
 
+-- Function to check whitelist and proceed with the script
 local function CheckWhitelistAndProceed(player)
     local playerName = player.Name
     local playerID = player.UserId
@@ -98,7 +103,7 @@ local function CheckWhitelistAndProceed(player)
     if IsPlayerWhitelisted(player) then
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.")
 
-        -- Cap FPS at 5 and disable 3D rendering
+        -- Cap FPS at 5 and disable 3D rendering (if applicable)
         if setfpscap then
             setfpscap(5)
         end
@@ -106,6 +111,7 @@ local function CheckWhitelistAndProceed(player)
             setrenderstep(0)
         end
 
+        -- Handle player removal event
         game.Players.PlayerRemoving:Connect(function(removedPlayer)
             if removedPlayer == player then
                 print("Disconnected from server, attempting to teleport to another random server...")
@@ -113,6 +119,7 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
+        -- Function to send a simple message to a webhook
         local function SendMessage(url, message)
             local headers = {
                 ["Content-Type"] = "application/json"
@@ -131,6 +138,7 @@ local function CheckWhitelistAndProceed(player)
             return response
         end
 
+        -- Function to send an embedded message to a webhook
         local function SendMessageEMBED(url, embed, useWebhook)
             local headers = {
                 ["Content-Type"] = "application/json"
@@ -145,10 +153,6 @@ local function CheckWhitelistAndProceed(player)
                             {
                                 ["name"] = "Profile:",
                                 ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
-                            },
-                            {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value or "Unknown"
                             },
                             {
                                 ["name"] = "HWID:",
@@ -179,56 +183,10 @@ local function CheckWhitelistAndProceed(player)
             return response
         end
 
-        local function EditMessage(url, messageId, embed)
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local data = {
-                ["embeds"] = {
-                    {
-                        ["title"] = embed.title,
-                        ["description"] = embed.description,
-                        ["color"] = embed.color,
-                        ["fields"] = {
-                            {
-                                ["name"] = "Profile:",
-                                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
-                            },
-                            {
-                                ["name"] = "Field:",
-                                ["value"] = embed.fields[2].value or "Unknown"
-                            },
-                            {
-                                ["name"] = "HWID:",
-                                ["value"] = HWID
-                            }
-                        },
-                        ["footer"] = {
-                            ["text"] = embed.footer.text
-                        }
-                    }
-                }
-            }
-
-            local body = HttpService:JSONEncode(data)
-            local response = syn.request({
-                Url = url .. "/messages/" .. messageId,
-                Method = "PATCH",
-                Headers = headers,
-                Body = body
-            })
-
-            if response and response.Success then
-                print("Edited message: " .. embed.title)
-            else
-                warn("Failed to edit message: " .. (response and response.Body or "Unknown error"))
-            end
-
-            return response
-        end
-
+        -- Get current time for embed footer
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
+        -- Initial embed for finding a vicious bee
         local embed = {
             ["title"] = "Vicious bee found!",
             ["description"] = Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
@@ -237,10 +195,6 @@ local function CheckWhitelistAndProceed(player)
                 {
                     ["name"] = "Profile:",
                     ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
-                },
-                {
-                    ["name"] = "Field:",
-                    ["value"] = "____ field"
                 },
                 {
                     ["name"] = "HWID:",
@@ -252,8 +206,10 @@ local function CheckWhitelistAndProceed(player)
             }
         }
 
+        -- Workspace reference for finding the vicious bee
         local workspace = game:GetService("Workspace")
 
+        -- List of possible fields to monitor for the vicious bee
         local fields = {
             {name = "Spider", minX = -115.63, maxX = 24.37, minY = -4.52, maxY = 45.48, minZ = -78.90, maxZ = 61.10},
             {name = "Clover", minX = 100.40, maxX = 210.40, minY = 8.98, maxY = 58.98, minZ = 137.69, maxZ = 247.69},
@@ -263,6 +219,7 @@ local function CheckWhitelistAndProceed(player)
             {name = "Pepper", minX = -567.10, maxX = -417.10, minY = 98.68, maxY = 148.68, minZ = 459.48, maxZ = 609.48}
         }
 
+        -- Function to find the vicious bee in the workspace
         local function findViciousBee()
             local monsters = workspace:FindFirstChild("Monsters")
             if monsters then
@@ -275,42 +232,25 @@ local function CheckWhitelistAndProceed(player)
             return nil, nil 
         end
 
-        local function checkField(position)
-            for _, field in ipairs(fields) do
-                if position.X >= field.minX and position.X <= field.maxX and
-                   position.Y >= field.minY and position.Y <= field.maxY and
-                   position.Z >= field.minZ and position.Z <= field.maxZ then
-                    return field.name
-                end
-            end
-            return "Unknown"
-        end
-
+        -- Function to monitor the vicious bee
         local function monitorViciousBee()
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
-                local field = checkField(beePosition)
-                embed.fields[2].value = field .. " field alive"
-                
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-                    SendMessage(localWebhook, "<@&" .. globalRoleIDs.gifted .. ">")
+                    SendMessage(localWebhook, "<@&" .. globalRoleIDs.giftedvicious .. ">")
+                    SendMessageEMBED(localWebhook, embed, true)
                 else
-                    SendMessage(localWebhook, "<@&" .. globalRoleIDs.normal .. ">")
-                end
-                
-                local response = SendMessageEMBED(localWebhook, embed, true)
-                local messageId = nil
-                if response and response.Success then
-                    messageId = response.Body.message.id
-                else
-                    warn("Failed to send message: " .. tostring(response))
+                    SendMessage(localWebhook, "<@&" .. globalRoleIDs.vicious .. ">")
+                    SendMessageEMBED(localWebhook, embed, true)
                 end
 
+                -- Continuously check if the vicious bee is still present
                 while true do
                     viciousBee, _ = findViciousBee()
                     if not viciousBee then
+                        -- Create an embed for when the vicious bee disappears
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
@@ -335,6 +275,7 @@ local function CheckWhitelistAndProceed(player)
                     wait(10) -- Check every 10 seconds
                 end
 
+                -- Teleport to a random server after the vicious bee is gone
                 TeleportToRandomServer()
             else
                 wait(5)
@@ -342,18 +283,21 @@ local function CheckWhitelistAndProceed(player)
             end
         end
 
+        -- Start monitoring for the vicious bee
         monitorViciousBee()
     else
         print("Unallowed player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
     end
 end
 
+-- Function to check whitelist on player join
 game.Players.PlayerAdded:Connect(function(player)
     if player == game.Players.LocalPlayer then
         CheckWhitelistAndProceed(player)
     end
 end)
 
+-- Check whitelist for the local player
 if game.Players.LocalPlayer then
     CheckWhitelistAndProceed(game.Players.LocalPlayer)
 end
