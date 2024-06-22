@@ -232,7 +232,7 @@ local function CheckWhitelistAndProceed(player)
             
             SendMessageEMBED(url, embed, true)
             wait(5)
-            SendMessageEMBED(url, embed, true)    
+            SendMessageEMBED(webhook, embed, true)    
             wait(120)
             TeleportToRandomServer()
             wait(10)
