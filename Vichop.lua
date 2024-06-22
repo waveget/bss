@@ -179,52 +179,6 @@ local function CheckWhitelistAndProceed(player)
             return response1, response2
         end
 
-        local function EditMessage(url, messageId, embed)
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local data = {
-                ["embeds"] = {
-                    {
-                        ["title"] = embed.title,
-                        ["description"] = embed.description,
-                        ["color"] = embed.color,
-                        ["footer"] = {
-                            ["text"] = embed.footer.text
-                        }
-                    }
-                }
-            }
-
-            if embed.fields then
-                data.embeds[1].fields = embed.fields
-            end
-
-            -- Modify the specified embed field
-            if embed.fields then
-                data.embeds[1].fields[2].value = embed.fields[2].value
-            end
-
-            local body = HttpService:JSONEncode(data)
-            
-            -- Edit message on both url and Webhook
-            local response1 = syn.request({
-                Url = url .. "/messages/" .. messageId,
-                Method = "PATCH",
-                Headers = headers,
-                Body = body
-            })
-            local response2 = syn.request({
-                Url = Webhook .. "/messages/" .. messageId,
-                Method = "PATCH",
-                Headers = headers,
-                Body = body
-            })
-
-            print("Edited message: " .. embed.title)
-            return response1, response2
-        end
-
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
         local embed = {
@@ -312,21 +266,21 @@ local function CheckWhitelistAndProceed(player)
                     warn("Failed to send message to Webhook: " .. tostring(response2))
                 end
 
+                local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
+
                 while true do
                     viciousBee, _ = findViciousBee()
-                    if not viciousBee then
+                    if not viciousBee and not sentViciousGoneMessage then
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
-                            ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
+                            ["description"] = Players.LocalPlayer.DisplayName .. "'vicious disappeared",
                             ["color"] = 16711680, -- Red color
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
-                        wait(1)
-                        SendMessageEMBED(Webhook, embedViciousGone, true)
-                        break
+                        sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
                     wait(10) -- Check every 10 seconds
                 end
