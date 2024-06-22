@@ -30,6 +30,52 @@ local function IsPlayerWhitelisted(player)
     return false
 end
 
+local function ListAndFilterServers()
+    local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+    local response = game:HttpGet(serversEndpoint)
+    local servers = HttpService:JSONDecode(response)
+
+    local filteredServers = {}
+    for _, server in ipairs(servers.data) do
+        if server.playing < server.maxPlayers then
+            table.insert(filteredServers, server)
+        end
+    end
+
+    return filteredServers
+end
+
+local function TeleportToRandomServer()
+    local plr = game.Players.LocalPlayer
+    local filteredServers = ListAndFilterServers()
+    if #filteredServers > 0 then
+        local retries = 5
+        while retries > 0 do
+            local randomIndex = math.random(1, #filteredServers)
+            local server = filteredServers[randomIndex]
+            local success, errorMsg = pcall(function()
+                TPS:TeleportToPlaceInstance(PlaceId, server.id, plr)
+            end)
+            
+            if success then
+                print("Successfully teleported to a random server!")
+                return
+            else
+                warn("Failed to teleport to server: " .. errorMsg)
+                if errorMsg:find("Unauthorized") then
+                    retries = retries - 1
+                    wait(10) -- Wait before retrying
+                else
+                    return -- Exit if the error is not related to authorization
+                end
+            end
+        end
+        warn("Failed to teleport after multiple retries.")
+    else
+        warn("No available servers to teleport to.")
+    end
+end
+
 local function CheckWhitelistAndProceed(player)
     local playerName = player.Name
     local playerID = player.UserId
@@ -46,41 +92,6 @@ local function CheckWhitelistAndProceed(player)
             setrenderstep(0)
         end
 
-        local function ListAndFilterServers()
-            local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
-            local response = game:HttpGet(serversEndpoint)
-            local servers = HttpService:JSONDecode(response)
-
-            local filteredServers = {}
-            for _, server in ipairs(servers.data) do
-                if server.playing < server.maxPlayers then
-                    table.insert(filteredServers, server)
-                end
-            end
-
-            return filteredServers
-        end
-
-        local function TeleportToRandomServer()
-            local plr = game.Players.LocalPlayer
-            local filteredServers = ListAndFilterServers()
-            if #filteredServers > 0 then
-                local randomIndex = math.random(1, #filteredServers)
-                local server = filteredServers[randomIndex]
-                local success, errorMsg = pcall(function()
-                    TPS:TeleportToPlaceInstance(PlaceId, server.id, plr)
-                end)
-                
-                if success then
-                    print("Successfully teleported to a random server!")
-                else
-                    warn("Failed to teleport to server: " .. errorMsg)
-                end
-            else
-                warn("No available servers to teleport to.")
-            end
-        end
-
         game.Players.PlayerRemoving:Connect(function(player)
             if player == game.Players.LocalPlayer then
                 print("Disconnected from server, attempting to teleport to another random server...")
@@ -88,7 +99,7 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
-        function SendMessage(url, message)
+        local function SendMessage(url, message)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -105,7 +116,7 @@ local function CheckWhitelistAndProceed(player)
             print("Sent message: " .. message)
         end
 
-        function SendMessageEMBED(url, embed, useWebhook)
+        local function SendMessageEMBED(url, embed, useWebhook)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -214,26 +225,25 @@ local function CheckWhitelistAndProceed(player)
             if viciousBee.Name:match("Gifted") then
                 embed.title = "Gifted vicious bee found!"
                 embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-                SendMessage(webhook, "<@&" .. roleIDs.gifted .. ">")
+                SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
             else
-                SendMessage(webhook, "<@&" .. roleIDs.normal .. ">")
+                SendMessage(url, "<@&" .. roleIDs.normal .. ">")
             end
             
             SendMessageEMBED(url, embed, true)
             wait(5)
-            SendMessageEMBED(webhook, embed, true)	
+            SendMessageEMBED(url, embed, true)    
             wait(120)
             TeleportToRandomServer()
-	    wait(10)
-	    TeleportToRandomServer()
+            wait(10)
+            TeleportToRandomServer()
         else
             wait(5)
             TeleportToRandomServer()
-	    wait(10)
-	    TeleportToRandomServer()
+            wait(10)
+            TeleportToRandomServer()
         end
     else
-        -- player:Kick("Account not whitelisted.")
         print("Unallowed player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
     end
 end
