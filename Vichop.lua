@@ -143,7 +143,7 @@ local function CheckWhitelistAndProceed(player)
                         ["fields"] = {
                             {
                                 ["name"] = "Profile:",
-                                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
+                                ["value"] = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
                             },
                             {
                                 ["name"] = "Field:",
@@ -186,7 +186,7 @@ local function CheckWhitelistAndProceed(player)
                         ["fields"] = {
                             {
                                 ["name"] = "Profile:",
-                                ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
+                                ["value"] = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
                             },
                             {
                                 ["name"] = "Field:",
@@ -223,12 +223,12 @@ local function CheckWhitelistAndProceed(player)
 
         local embed = {
             ["title"] = "Vicious bee found!",
-            ["description"] = Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
+            ["description"] = player.DisplayName .. " has found a vicious bee.",
             ["color"] = 65280,
             ["fields"] = {
                 {
                     ["name"] = "Profile:",
-                    ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
+                    ["value"] = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
                 },
                 {
                     ["name"] = "Field:",
@@ -286,7 +286,7 @@ local function CheckWhitelistAndProceed(player)
                 
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
-                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
+                    embed.description = player.DisplayName .. " has found a gifted vicious bee."
                     SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
                 else
                     SendMessage(url, "<@&" .. roleIDs.normal .. ">")
@@ -305,12 +305,12 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee then
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
-                            ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
+                            ["description"] = player.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
                             ["fields"] = {
                                 {
                                     ["name"] = "Username:",
-                                    ["value"] = Players.LocalPlayer.DisplayName
+                                    ["value"] = player.DisplayName
                                 },
                                 {
                                     ["name"] = "HWID:",
