@@ -15,6 +15,8 @@ local PlaceId = game.PlaceId
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
+local Webhook = _G.Webhook
+local globalRoleIDs = _G.WebhookRoleIds or {}
 
 local roleIDs = {
     normal = "1253237631072866326",
