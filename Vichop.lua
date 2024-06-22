@@ -1,4 +1,3 @@
-
 local whitelistedPlayerIDs = {
     6190530680,
     6190533869,
@@ -338,22 +337,12 @@ local function CheckWhitelistAndProceed(player)
                             ["title"] = "Vicious bee gone!",
                             ["description"] = Players.LocalPlayer.DisplayName .. " has found that the vicious bee disappeared.",
                             ["color"] = 16711680, -- Red color
-                            ["fields"] = {
-                                {
-                                    ["name"] = "Username:",
-                                    ["value"] = Players.LocalPlayer.DisplayName
-                                },
-                                {
-                                    ["name"] = "HWID:",
-                                    ["value"] = HWID
-                                }
-                            },
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
                         SendMessageEMBED(url, embedViciousGone, true)
-                        wait(1)
+                        wait(1)  -- Ensure only one message is sent to Webhook
                         SendMessageEMBED(Webhook, embedViciousGone, true)
                         break
                     end
