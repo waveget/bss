@@ -17,8 +17,8 @@ local localRoleIDs = {
 }
 
 local globalRoleIDs = _G.WebhookRoleIds or {
-    vicious = "error",
-    giftedvicious = "error"
+    vicious = "Undefined Role",
+    giftedvicious = "Undefined Role"
 }
 
 local function IsPlayerWhitelisted(player)
