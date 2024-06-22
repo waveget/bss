@@ -1,6 +1,5 @@
 -- Main script
     local whitelistedPlayerIDs = {
-        80299238,
         6190530680,
         6190533869,
         6190538759,
@@ -221,8 +220,8 @@
                 TeleportToRandomServer()
             end
         else
-            player:Kick("Account not whitelisted.")
-            print("Kicked player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
+        --         player:Kick("Account not whitelisted.")
+            print("Unallowed player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
         end
     end
 
