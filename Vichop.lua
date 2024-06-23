@@ -21,18 +21,17 @@ local PlaceId = game.PlaceId
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 
--- Discord Webhook URL (replace with your actual webhook URL)
+-- Discord Webhook URLs (replace with your actual webhook URLs)
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-
--- Webhook (replace with your actual webhook URL)
-local Webhook = _G.Webhook
-local globalRoleIDs = _G.WebhookRoleIds or {}
+local webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
 
 -- Role IDs for notifications
 local roleIDs = {
     normal = "1253237631072866326",
     gifted = "1253392095109054617"
 }
+
+local globalRoleIDs = _G.WebhookRoleIds or {}  -- Assuming _G.WebhookRoleIds holds the second set of role IDs
 
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
@@ -136,25 +135,34 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local success1, response1 = pcall(function()
-                return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
-            end)
+            local response1 = request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
 
-            local success2, response2 = pcall(function()
-                return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
-            end)
+            local response2 = request({
+                Url = webhook2,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
 
-            if not success1 then
-                warn("Failed to send message to url: " .. tostring(response1))
+            if response1 and response1.Success then
+                print("Message sent successfully to URL")
+            else
+                warn("Failed to send message to URL: " .. tostring(response1))
             end
-            if not success2 then
-                warn("Failed to send message to webhook: " .. tostring(response2))
-            end
 
-            return success1 and response1, success2 and response2
+            if response2 and response2.Success then
+                print("Message sent successfully to Webhook2")
+            else
+                warn("Failed to send message to Webhook2: " .. tostring(response2))
+            end
         end
 
-        local function SendMessageEMBED(url, embed, useWebhook)
+        local function SendMessageEMBED(url, embed)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -164,35 +172,40 @@ local function CheckWhitelistAndProceed(player)
                         ["title"] = embed.title,
                         ["description"] = embed.description,
                         ["color"] = embed.color,
+                        ["fields"] = embed.fields,
                         ["footer"] = {
                             ["text"] = embed.footer.text
                         }
                     }
                 }
             }
-
-            if embed.fields then
-                data.embeds[1].fields = embed.fields
-            end
-
             local body = HttpService:JSONEncode(data)
             
-            local success1, response1 = pcall(function()
-                return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
-            end)
+            local response1 = request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
 
-            local success2, response2 = pcall(function()
-                return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
-            end)
+            local response2 = request({
+                Url = webhook2,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
 
-            if not success1 then
-                warn("Failed to send embed to url: " .. tostring(response1))
+            if response1 and response1.Success then
+                print("Embed sent successfully to URL")
+            else
+                warn("Failed to send embed to URL: " .. tostring(response1))
             end
-            if not success2 then
-                warn("Failed to send embed to webhook: " .. tostring(response2))
-            end
 
-            return success1 and response1, success2 and response2
+            if response2 and response2.Success then
+                print("Embed sent successfully to Webhook2")
+            else
+                warn("Failed to send embed to Webhook2: " .. tostring(response2))
+            end
         end
 
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
@@ -271,15 +284,15 @@ local function CheckWhitelistAndProceed(player)
                 local response1, response2 = SendMessageEMBED(url, embed, true)
                 local messageId = nil
                 if response1 and response1.Success then
-                    messageId = response1.Body.message.id
+                    messageId = response1.message.id
                 else
-                    warn("Failed to send message to url: " .. tostring(response1))
+                    warn("Failed to send message to URL: " .. tostring(response1))
                 end
                 
                 if response2 and response2.Success then
-                    messageId = response2.Body.message.id
+                    messageId = response2.message.id
                 else
-                    warn("Failed to send message to Webhook: " .. tostring(response2))
+                    warn("Failed to send message to Webhook2: " .. tostring(response2))
                 end
 
                 local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
