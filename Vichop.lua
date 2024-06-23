@@ -35,8 +35,6 @@ local roleIDs = {
     gifted = "1253392095109054617"
 }
 
-local globalRoleIDs = _G.WebhookRoleIds or {}  -- Assuming _G.WebhookRoleIds holds the second set of role IDs
-
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
@@ -107,6 +105,7 @@ local function TeleportToRandomServer()
     end
 end
 
+-- Function to check the whitelist and proceed
 local function CheckWhitelistAndProceed(player)
     local playerName = player.Name
     local playerID = player.UserId
@@ -334,13 +333,22 @@ local function CheckWhitelistAndProceed(player)
     end
 end
 
-game.Players.PlayerAdded:Connect(function(player)
-    if player == game.Players.LocalPlayer then
-        CheckWhitelistAndProceed(player)
+-- Only proceed if _G.Key is valid
+if _G.Key == "1234abc" then
+    game.Players.PlayerAdded:Connect(function(player)
+        if player == game.Players.LocalPlayer then
+            CheckWhitelistAndProceed(player)
+        end
+    end)
+
+    if game.Players.LocalPlayer then
+        CheckWhitelistAndProceed(game.Players.LocalPlayer)
     end
-end)
 
-if game.Players.LocalPlayer then
-    CheckWhitelistAndProceed(game.Players.LocalPlayer)
+    -- Teleport after 2 minutes
+    delay(120, function()
+        TeleportToRandomServer()
+    end)
+else
+    warn("Invalid key! Script will not run.")
 end
-
