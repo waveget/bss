@@ -129,7 +129,7 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
-        local function SendMessage(url, message, pingRole)
+        local function SendMessage(url, message)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -138,36 +138,34 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local response = request({
+            local response1 = request({
                 Url = url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
-            if response and response.Success then
+            local response2 = request({
+                Url = webhook2,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+
+            if response1 and response1.Success then
                 print("Message sent successfully to URL")
             else
-                warn("Failed to send message to URL: " .. tostring(response))
+                warn("Failed to send message to URL: " .. tostring(response1))
             end
 
-            if pingRole then
-                local response2 = request({
-                    Url = webhook2,
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-
-                if response2 and response2.Success then
-                    print("Message sent successfully to Webhook2")
-                else
-                    warn("Failed to send message to Webhook2: " .. tostring(response2))
-                end
+            if response2 and response2.Success then
+                print("Message sent successfully to Webhook2")
+            else
+                warn("Failed to send message to Webhook2: " .. tostring(response2))
             end
         end
 
-        local function SendMessageEMBED(url, embed, pingRole)
+        local function SendMessageEMBED(url, embed)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -186,32 +184,30 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local response = request({
+            local response1 = request({
                 Url = url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
-            if response and response.Success then
+            local response2 = request({
+                Url = webhook2,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+
+            if response1 and response1.Success then
                 print("Embed sent successfully to URL")
             else
-                warn("Failed to send embed to URL: " .. tostring(response))
+                warn("Failed to send embed to URL: " .. tostring(response1))
             end
 
-            if pingRole then
-                local response2 = request({
-                    Url = webhook2,
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-
-                if response2 and response2.Success then
-                    print("Embed sent successfully to Webhook2")
-                else
-                    warn("Failed to send embed to Webhook2: " .. tostring(response2))
-                end
+            if response2 and response2.Success then
+                print("Embed sent successfully to Webhook2")
+            else
+                warn("Failed to send embed to Webhook2: " .. tostring(response2))
             end
         end
 
@@ -283,15 +279,24 @@ local function CheckWhitelistAndProceed(player)
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">", true)  -- Send with role ping for the 'url'
+                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
                 else
-                    SendMessage(url, "<@&" .. roleIDs.normal .. ">", true)  -- Send with role ping for the 'url'
+                    SendMessage(url, "<@&" .. roleIDs.normal .. ">")
                 end
                 
-                SendMessageEMBED(url, embed, true)  -- Always send embed to 'url'
-
-                -- Send without pings to _G.Webhook
-                SendMessage(webhook2, HttpService:JSONEncode(embed), false)
+                local response1, response2 = SendMessageEMBED(url, embed, true)
+                local messageId = nil
+                if response1 and response1.Success then
+                    messageId = response1.message.id
+                else
+                    warn("Failed to send message to URL: " .. tostring(response1))
+                end
+                
+                if response2 and response2.Success then
+                    messageId = response2.message.id
+                else
+                    warn("Failed to send message to Webhook2: " .. tostring(response2))
+                end
 
                 local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
 
