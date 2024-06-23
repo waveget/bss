@@ -14,8 +14,6 @@ local whitelistedPlayerIDs = {
     495592364, -- fred
 }
 
-
-
 -- Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -197,9 +195,9 @@ local function CheckWhitelistAndProceed(player)
             })
 
             if response1 and response1.Success then
-                print("Message sent successfully to Webhook")
+                print("Message sent successfully to Webhook2")
             else
-                warn("Failed to send message to Webhook: " .. tostring(response1))
+                warn("Failed to send message to Webhook2: " .. tostring(response1))
             end
 
             -- Ping roles from _G.WebhookRoleIds table
@@ -338,7 +336,7 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee then
                         break
                     end
-                    wait(2) -- Check every 10 seconds
+                    wait(10) -- Check every 10 seconds
                 end
 
                 TeleportToRandomServer()  -- Teleport to a random server after vicious bee disappears
@@ -363,3 +361,4 @@ end)
 if game.Players.LocalPlayer then
     CheckWhitelistAndProceed(game.Players.LocalPlayer)
 end
+
