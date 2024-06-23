@@ -4,6 +4,7 @@ local whitelistedPlayerIDs = {
     6190538759,
     6190541922,
     80299238,
+    6190947741,
 }
 
 local HttpService = game:GetService("HttpService")
