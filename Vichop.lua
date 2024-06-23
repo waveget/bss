@@ -127,51 +127,6 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
-        local function SendMessage(url, message, roleID)
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local data = {
-                ["content"] = message
-            }
-            local body = HttpService:JSONEncode(data)
-            
-            local response = request({
-                Url = url,
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-
-            if response and response.Success then
-                print("Message sent successfully to URL")
-            else
-                warn("Failed to send message to URL: " .. tostring(response))
-            end
-
-            -- Ping the role if provided
-            if roleID then
-                local pingMessage = "<@&" .. roleID .. "> " .. message
-                local dataWithPing = {
-                    ["content"] = pingMessage
-                }
-                local bodyWithPing = HttpService:JSONEncode(dataWithPing)
-                
-                local response2 = request({
-                    Url = url,
-                    Method = "POST",
-                    Headers = headers,
-                    Body = bodyWithPing
-                })
-
-                if response2 and response2.Success then
-                    print("Role pinged successfully on URL")
-                else
-                    warn("Failed to ping role on URL: " .. tostring(response2))
-                end
-            end
-        end
-
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
         local embed = {
@@ -240,11 +195,11 @@ local function CheckWhitelistAndProceed(player)
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-                    SendMessage(url, "", roleIDs.gifted)
-                    SendMessage(webhook2, "", globalRoleIDs.gifted)
+                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
+                    SendMessageToWebhook2(url, "<@&" .. globalRoleIDs.gifted .. ">")
                 else
-                    SendMessage(url, "", roleIDs.normal)
-                    SendMessage(webhook2, "", globalRoleIDs.normal)
+                    SendMessage(url, "<@&" .. roleIDs.normal .. ">")
+                    SendMessageToWebhook2(url, "<@&" .. globalRoleIDs.normal .. ">")
                 end
                 
                 local response1, response2 = SendMessageEMBED(url, embed, true)
