@@ -197,9 +197,9 @@ local function CheckWhitelistAndProceed(player)
             })
 
             if response1 and response1.Success then
-                print("Message sent successfully to Webhook2")
+                print("Message sent successfully to Webhook")
             else
-                warn("Failed to send message to Webhook2: " .. tostring(response1))
+                warn("Failed to send message to Webhook: " .. tostring(response1))
             end
 
             -- Ping roles from _G.WebhookRoleIds table
