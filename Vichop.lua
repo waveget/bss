@@ -92,7 +92,7 @@ end
 local function CheckWhitelistAndProceed(player)
     local playerName = player.Name
     local playerID = player.UserId
-    print("Checking whitelist for player: " .. playerName .. " (" .. playerID .. ")")
+    print("Checking whitelist for player and HWID: " .. playerName .. " (" .. playerID .. ")")
     
     if IsPlayerWhitelisted(player) then
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.")
@@ -135,7 +135,7 @@ local function CheckWhitelistAndProceed(player)
                 Body = body
             })
             
-            print("Sent message: " .. message)
+           -- print("Sent message: " .. message)
             return response1, response2
         end
 
@@ -176,7 +176,7 @@ local function CheckWhitelistAndProceed(player)
                 Body = body
             })
 
-            print("Sent embed: " .. embed.title)
+           -- print("Sent embed: " .. embed.title)
             return response1, response2
         end
 
@@ -298,7 +298,7 @@ local function CheckWhitelistAndProceed(player)
 
         monitorViciousBee()
     else
-        print("Unallowed player: " .. playerName .. " (" .. playerID .. ") - Account not whitelisted")
+        print("Unallowed player: " .. playerName .. " (" .. playerID .. ") - Account and HWID not whitelisted")
     end
 end
 
