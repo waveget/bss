@@ -1,4 +1,5 @@
--- List of whitelisted player IDs
+repeat wait() until game:IsLoaded()
+
 local whitelistedPlayerIDs = {
     6190530680, -- me
     6190533869, --
