@@ -338,7 +338,7 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee then
                         break
                     end
-                    wait(10) -- Check every 10 seconds
+                    wait(2) -- Check every 10 seconds
                 end
 
                 TeleportToRandomServer()  -- Teleport to a random server after vicious bee disappears
