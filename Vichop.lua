@@ -124,21 +124,31 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            -- Send message to both url and Webhook
-            local response1 = syn.request({
-                Url = url,
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-            local response2 = syn.request({
-                Url = Webhook,
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-            
-           -- print("Sent message: " .. message)
+            local response1, response2
+            if syn and syn.request then
+                -- Send message using syn.request
+                response1 = syn.request({
+                    Url = url,
+                    Method = "POST",
+                    Headers = headers,
+                    Body = body
+                })
+                response2 = syn.request({
+                    Url = Webhook,
+                    Method = "POST",
+                    Headers = headers,
+                    Body = body
+                })
+            else
+                -- Send message using HttpService
+                response1 = pcall(function()
+                    return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
+                end)
+                response2 = pcall(function()
+                    return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
+                end)
+            end
+
             return response1, response2
         end
 
@@ -165,21 +175,31 @@ local function CheckWhitelistAndProceed(player)
 
             local body = HttpService:JSONEncode(data)
             
-            -- Send embed to both url and Webhook
-            local response1 = syn.request({
-                Url = useWebhook and url or "",
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
-            local response2 = syn.request({
-                Url = useWebhook and Webhook or "",
-                Method = "POST",
-                Headers = headers,
-                Body = body
-            })
+            local response1, response2
+            if syn and syn.request then
+                -- Send embed using syn.request
+                response1 = syn.request({
+                    Url = useWebhook and url or "",
+                    Method = "POST",
+                    Headers = headers,
+                    Body = body
+                })
+                response2 = syn.request({
+                    Url = useWebhook and Webhook or "",
+                    Method = "POST",
+                    Headers = headers,
+                    Body = body
+                })
+            else
+                -- Send embed using HttpService
+                response1 = pcall(function()
+                    return HttpService:PostAsync(useWebhook and url or "", body, Enum.HttpContentType.ApplicationJson, false)
+                end)
+                response2 = pcall(function()
+                    return HttpService:PostAsync(useWebhook and Webhook or "", body, Enum.HttpContentType.ApplicationJson, false)
+                end)
+            end
 
-           -- print("Sent embed: " .. embed.title)
             return response1, response2
         end
 
