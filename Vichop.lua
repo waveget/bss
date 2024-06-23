@@ -1,30 +1,40 @@
+-- List of whitelisted player IDs
 local whitelistedPlayerIDs = {
-    6190530680, -- 551813296181739521 
-    6190533869, -- 551813296181739521
-    6190538759, -- 551813296181739521 
-    6190541922, -- 551813296181739521
-    80299238, -- 551813296181739521
+    6190530680, -- me
+    6190533869, --
+    6190538759, --
+    6190541922, --
+    80299238, --
     6194478155, -- 1204635486266724383
-    6194479885, -- 1204635486266724383
-    6194483501, -- 1204635486266724383
-    495592364, -- 930852264359379006
+    6194479885, --
+    6194483501, --
+    495592364, --
 }
 
+-- Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local TPS = game:GetService("TeleportService")
+local TeleportService = game:GetService("TeleportService")
+
+-- Game specific constants
 local PlaceId = game.PlaceId 
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
+
+-- Discord Webhook URL (replace with your actual webhook URL)
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
+
+-- Webhook (replace with your actual webhook URL)
 local Webhook = _G.Webhook
 local globalRoleIDs = _G.WebhookRoleIds or {}
 
+-- Role IDs for notifications
 local roleIDs = {
     normal = "1253237631072866326",
     gifted = "1253392095109054617"
 }
 
+-- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
     for _, id in ipairs(whitelistedPlayerIDs) do
@@ -35,6 +45,7 @@ local function IsPlayerWhitelisted(player)
     return false
 end
 
+-- Function to list and filter servers
 local function ListAndFilterServers()
     local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     local success, response = pcall(function()
@@ -60,6 +71,7 @@ local function ListAndFilterServers()
     return filteredServers
 end
 
+-- Function to teleport to a random server
 local function TeleportToRandomServer()
     local plr = game.Players.LocalPlayer
     local filteredServers = ListAndFilterServers()
@@ -70,7 +82,7 @@ local function TeleportToRandomServer()
             local randomIndex = math.random(1, #filteredServers)
             local server = filteredServers[randomIndex]
             local success, errorMsg = pcall(function()
-                TPS:TeleportToPlaceInstance(PlaceId, server.id, plr)
+                TeleportService:TeleportToPlaceInstance(PlaceId, server.id, plr)
             end)
             
             if success then
@@ -124,32 +136,22 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local response1, response2
-            if syn and syn.request then
-                -- Send message using syn.request
-                response1 = syn.request({
-                    Url = url,
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-                response2 = syn.request({
-                    Url = Webhook,
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-            else
-                -- Send message using HttpService
-                response1 = pcall(function()
-                    return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
-                end)
-                response2 = pcall(function()
-                    return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
-                end)
+            local success1, response1 = pcall(function()
+                return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
+            end)
+
+            local success2, response2 = pcall(function()
+                return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
+            end)
+
+            if not success1 then
+                warn("Failed to send message to url: " .. tostring(response1))
+            end
+            if not success2 then
+                warn("Failed to send message to webhook: " .. tostring(response2))
             end
 
-            return response1, response2
+            return success1 and response1, success2 and response2
         end
 
         local function SendMessageEMBED(url, embed, useWebhook)
@@ -175,32 +177,22 @@ local function CheckWhitelistAndProceed(player)
 
             local body = HttpService:JSONEncode(data)
             
-            local response1, response2
-            if syn and syn.request then
-                -- Send embed using syn.request
-                response1 = syn.request({
-                    Url = useWebhook and url or "",
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-                response2 = syn.request({
-                    Url = useWebhook and Webhook or "",
-                    Method = "POST",
-                    Headers = headers,
-                    Body = body
-                })
-            else
-                -- Send embed using HttpService
-                response1 = pcall(function()
-                    return HttpService:PostAsync(useWebhook and url or "", body, Enum.HttpContentType.ApplicationJson, false)
-                end)
-                response2 = pcall(function()
-                    return HttpService:PostAsync(useWebhook and Webhook or "", body, Enum.HttpContentType.ApplicationJson, false)
-                end)
+            local success1, response1 = pcall(function()
+                return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson, false)
+            end)
+
+            local success2, response2 = pcall(function()
+                return HttpService:PostAsync(Webhook, body, Enum.HttpContentType.ApplicationJson, false)
+            end)
+
+            if not success1 then
+                warn("Failed to send embed to url: " .. tostring(response1))
+            end
+            if not success2 then
+                warn("Failed to send embed to webhook: " .. tostring(response2))
             end
 
-            return response1, response2
+            return success1 and response1, success2 and response2
         end
 
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
