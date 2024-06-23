@@ -18,6 +18,7 @@ local whitelistedPlayerIDs = {
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
+local RunService = game:GetService("RunService")
 
 -- Game specific constants
 local PlaceId = game.PlaceId 
@@ -34,7 +35,10 @@ local roleIDs = {
     gifted = "1253392095109054617"
 }
 
-local globalRoleIDs = _G.WebhookRoleIds or {}  -- Assuming _G.WebhookRoleIds holds the second set of role IDs
+local globalRoleIDs = {
+    normal = "1253237631072866326",
+    gifted = "1253392095109054617"
+}
 
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
@@ -79,28 +83,17 @@ local function TeleportToRandomServer()
     local filteredServers = ListAndFilterServers()
     
     if #filteredServers > 0 then
-        local retries = 5
-        while retries > 0 do
-            local randomIndex = math.random(1, #filteredServers)
-            local server = filteredServers[randomIndex]
-            local success, errorMsg = pcall(function()
-                TeleportService:TeleportToPlaceInstance(PlaceId, server.id, plr)
-            end)
-            
-            if success then
-                print("Successfully teleported to a random server!")
-                return
-            else
-                warn("Failed to teleport to server: " .. errorMsg)
-                if errorMsg:find("Unauthorized") then
-                    retries = retries - 1
-                    wait(10) -- Wait before retrying
-                else
-                    return -- Exit if the error is not related to authorization
-                end
-            end
+        local randomIndex = math.random(1, #filteredServers)
+        local server = filteredServers[randomIndex]
+        local success, errorMsg = pcall(function()
+            TeleportService:TeleportToPlaceInstance(PlaceId, server.id, plr)
+        end)
+        
+        if success then
+            print("Successfully teleported to a random server!")
+        else
+            warn("Failed to teleport to server: " .. errorMsg)
         end
-        warn("Failed to teleport after multiple retries.")
     else
         warn("No available servers to teleport to.")
     end
@@ -122,13 +115,6 @@ local function CheckWhitelistAndProceed(player)
             setrenderstep(0)
         end
 
-        game.Players.PlayerRemoving:Connect(function(removedPlayer)
-            if removedPlayer == player then
-                print("Disconnected from server, attempting to teleport to another random server...")
-                TeleportToRandomServer()
-            end
-        end)
-
         local function SendMessage(url, message, roleIDs)
             local headers = {
                 ["Content-Type"] = "application/json"
@@ -138,17 +124,17 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local response1 = request({
+            local response = HttpService:RequestAsync({
                 Url = url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
-            if response1 and response1.Success then
+            if response.Success then
                 print("Message sent successfully to URL")
             else
-                warn("Failed to send message to URL: " .. tostring(response1))
+                warn("Failed to send message to URL: " .. tostring(response))
             end
 
             -- Ping roles from roleIDs table
@@ -163,14 +149,14 @@ local function CheckWhitelistAndProceed(player)
                 }
                 local bodyWithPing = HttpService:JSONEncode(dataWithPing)
                 
-                local response2 = request({
+                local response2 = HttpService:RequestAsync({
                     Url = url,
                     Method = "POST",
                     Headers = headers,
                     Body = bodyWithPing
                 })
 
-                if response2 and response2.Success then
+                if response2.Success then
                     print("Roles pinged successfully on URL")
                 else
                     warn("Failed to ping roles on URL: " .. tostring(response2))
@@ -187,23 +173,23 @@ local function CheckWhitelistAndProceed(player)
             }
             local body = HttpService:JSONEncode(data)
             
-            local response1 = request({
+            local response = HttpService:RequestAsync({
                 Url = webhook2,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
-            if response1 and response1.Success then
+            if response.Success then
                 print("Message sent successfully to Webhook2")
             else
-                warn("Failed to send message to Webhook2: " .. tostring(response1))
+                warn("Failed to send message to Webhook2: " .. tostring(response))
             end
 
-            -- Ping roles from _G.WebhookRoleIds table
-            if _G.WebhookRoleIds and next(_G.WebhookRoleIds) then
+            -- Ping roles from globalRoleIDs table
+            if globalRoleIDs and next(globalRoleIDs) then
                 local roleMentions = {}
-                for _, roleId in pairs(_G.WebhookRoleIds) do
+                for _, roleId in pairs(globalRoleIDs) do
                     table.insert(roleMentions, "<@&" .. roleId .. ">")
                 end
                 local pingMessage = table.concat(roleMentions, " ")
@@ -212,14 +198,14 @@ local function CheckWhitelistAndProceed(player)
                 }
                 local bodyWithPing = HttpService:JSONEncode(dataWithPing)
                 
-                local response2 = request({
+                local response2 = HttpService:RequestAsync({
                     Url = webhook2,
                     Method = "POST",
                     Headers = headers,
                     Body = bodyWithPing
                 })
 
-                if response2 and response2.Success then
+                if response2.Success then
                     print("Roles pinged successfully on Webhook2")
                 else
                     warn("Failed to ping roles on Webhook2: " .. tostring(response2))
@@ -252,8 +238,6 @@ local function CheckWhitelistAndProceed(player)
             }
         }
 
-        local workspace = game:GetService("Workspace")
-
         local fields = {
             {name = "Spider", minX = -115.63, maxX = 24.37, minY = -4.52, maxY = 45.48, minZ = -78.90, maxZ = 61.10},
             {name = "Clover", minX = 100.40, maxX = 210.40, minY = 8.98, maxY = 58.98, minZ = 137.69, maxZ = 247.69},
@@ -264,7 +248,7 @@ local function CheckWhitelistAndProceed(player)
         }
 
         local function findViciousBee()
-            local monsters = workspace:FindFirstChild("Monsters")
+            local monsters = game.Workspace:FindFirstChild("Monsters")
             if monsters then
                 for _, monster in ipairs(monsters:GetChildren()) do
                     if monster:IsA("Model") and monster.Name:match("^Vicious Bee") then
@@ -302,7 +286,7 @@ local function CheckWhitelistAndProceed(player)
                     SendMessageToWebhook2(url, "<@&" .. globalRoleIDs.normal .. ">")
                 end
                 
-                local response1, response2 = SendMessageEMBED(url, embed)
+                local response1 = SendMessage(url, HttpService:JSONEncode(embed), true)
                 local messageId = nil
                 if response1 and response1.Success then
                     messageId = response1.message.id
@@ -310,6 +294,7 @@ local function CheckWhitelistAndProceed(player)
                     warn("Failed to send message to URL: " .. tostring(response1))
                 end
                 
+                local response2 = SendMessageToWebhook2(webhook2, HttpService:JSONEncode(embed), true)
                 if response2 and response2.Success then
                     messageId = response2.message.id
                 else
@@ -329,8 +314,8 @@ local function CheckWhitelistAndProceed(player)
                                 ["text"] = currentTime
                             }
                         }
-                        SendMessageEMBED(url, embedViciousGone)
-                        SendMessageEMBED(webhook2, embedViciousGone)
+                        SendMessage(url, HttpService:JSONEncode(embedViciousGone), true)
+                        SendMessageToWebhook2(webhook2, HttpService:JSONEncode(embedViciousGone), true)
                         sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
                     if not viciousBee then
@@ -352,13 +337,33 @@ local function CheckWhitelistAndProceed(player)
     end
 end
 
+-- Event handler for when a player joins
 game.Players.PlayerAdded:Connect(function(player)
     if player == game.Players.LocalPlayer then
         CheckWhitelistAndProceed(player)
     end
 end)
 
+-- Check for the local player on script start
 if game.Players.LocalPlayer then
     CheckWhitelistAndProceed(game.Players.LocalPlayer)
+end
+
+-- Handle script continuation after teleporting to a new server
+if RunService:IsStudio() then
+    return -- Stop script if running in Roblox Studio
+end
+
+game.Players.PlayerRemoving:Connect(function(removedPlayer)
+    if removedPlayer == game.Players.LocalPlayer then
+        print("Disconnected from server, attempting to teleport to another random server...")
+        TeleportToRandomServer()
+    end
+end)
+
+-- Continuously check and monitor the vicious bee
+while true do
+    wait(10) -- Check every 10 seconds
+    monitorViciousBee()
 end
 
