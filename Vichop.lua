@@ -14,9 +14,9 @@ local whitelistedPlayerIDs = {
 }
 
 -- Services
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
+local Workspace = game:GetService("Workspace")
 
 -- Game specific constants
 local PlaceId = game.PlaceId 
@@ -34,10 +34,6 @@ local roleIDs = {
 }
 
 local globalRoleIDs = _G.WebhookRoleIds or {}  -- Assuming _G.WebhookRoleIds holds the second set of role IDs
-
--- Flags to prevent double sending
-local messageSent = false
-local webhook2Sent = false
 
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
@@ -132,100 +128,16 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
-        local function SendMessage(url, message, roleIDs)
-            if messageSent then
-                return
-            end
-            messageSent = true
-
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local data = {
-                ["content"] = message
-            }
-            local body = HttpService:JSONEncode(data)
-            
-            local response1 = HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson)
-            if response1 then
-                print("Message sent successfully to URL")
-            else
-                warn("Failed to send message to URL")
-            end
-
-            -- Ping roles from roleIDs table
-            if roleIDs and next(roleIDs) then
-                local roleMentions = {}
-                for _, roleId in pairs(roleIDs) do
-                    table.insert(roleMentions, "<@&" .. roleId .. ">")
-                end
-                local pingMessage = table.concat(roleMentions, " ")
-                local dataWithPing = {
-                    ["content"] = pingMessage .. "\n" .. message
-                }
-                local bodyWithPing = HttpService:JSONEncode(dataWithPing)
-                
-                local response2 = HttpService:PostAsync(url, bodyWithPing, Enum.HttpContentType.ApplicationJson)
-                if response2 then
-                    print("Roles pinged successfully on URL")
-                else
-                    warn("Failed to ping roles on URL")
-                end
-            end
-        end
-
-        local function SendMessageToWebhook2(url, message, roleIDs)
-            if webhook2Sent then
-                return
-            end
-            webhook2Sent = true
-
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local data = {
-                ["content"] = message
-            }
-            local body = HttpService:JSONEncode(data)
-            
-            local response1 = HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson)
-            if response1 then
-                print("Message sent successfully to Webhook2")
-            else
-                warn("Failed to send message to Webhook2")
-            end
-
-            -- Ping roles from _G.WebhookRoleIds table
-            if globalRoleIDs and next(globalRoleIDs) then
-                local roleMentions = {}
-                for _, roleId in pairs(globalRoleIDs) do
-                    table.insert(roleMentions, "<@&" .. roleId .. ">")
-                end
-                local pingMessage = table.concat(roleMentions, " ")
-                local dataWithPing = {
-                    ["content"] = pingMessage .. "\n" .. message
-                }
-                local bodyWithPing = HttpService:JSONEncode(dataWithPing)
-                
-                local response2 = HttpService:PostAsync(url, bodyWithPing, Enum.HttpContentType.ApplicationJson)
-                if response2 then
-                    print("Roles pinged successfully on Webhook2")
-                else
-                    warn("Failed to ping roles on Webhook2")
-                end
-            end
-        end
-
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
         local embed = {
             ["title"] = "Vicious bee found!",
-            ["description"] = player.DisplayName .. " has found a vicious bee.",
+            ["description"] = Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
             ["color"] = 65280,
             ["fields"] = {
                 {
                     ["name"] = "Profile:",
-                    ["value"] = "https://www.roblox.com/users/" .. player.UserId .. "/profile"
+                    ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
                 },
                 {
                     ["name"] = "Field:",
@@ -251,7 +163,7 @@ local function CheckWhitelistAndProceed(player)
         }
 
         local function findViciousBee()
-            local monsters = game.Workspace:FindFirstChild("Monsters")
+            local monsters = Workspace:FindFirstChild("Monsters")
             if monsters then
                 for _, monster in ipairs(monsters:GetChildren()) do
                     if monster:IsA("Model") and monster.Name:match("^Vicious Bee") then
@@ -273,6 +185,20 @@ local function CheckWhitelistAndProceed(player)
             return "Unknown"
         end
 
+        local function SendMessageEMBED(url, embedData)
+            local headers = {
+                ["Content-Type"] = "application/json"
+            }
+            local body = HttpService:JSONEncode({embed = embedData})
+            
+            local response = HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson)
+            if response then
+                print("Message sent successfully to URL")
+            else
+                warn("Failed to send message to URL: " .. tostring(response))
+            end
+        end
+
         local function monitorViciousBee()
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
@@ -281,17 +207,12 @@ local function CheckWhitelistAndProceed(player)
                 
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
-                    embed.description = player.DisplayName .. " has found a gifted vicious bee."
-                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">", roleIDs)
-                    SendMessageToWebhook2(webhook2, "<@&" .. globalRoleIDs.gifted .. ">", globalRoleIDs)
-                else
-                    SendMessage(url, "<@&" .. roleIDs.normal .. ">", roleIDs)
-                    SendMessageToWebhook2(webhook2, "<@&" .. globalRoleIDs.normal .. ">", globalRoleIDs)
+                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                 end
                 
-                local response1 = SendMessage(url, "", roleIDs)
-                local response2 = SendMessageToWebhook2(webhook2, "", globalRoleIDs)
-
+                SendMessageEMBED(url, embed)
+                SendMessageEMBED(webhook2, embed)
+                
                 local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
 
                 while true do
@@ -299,14 +220,14 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee and not sentViciousGoneMessage then
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
-                            ["description"] = player.DisplayName .. " has no vicious bee.",
+                            ["description"] = Players.LocalPlayer.DisplayName .. " has no vicious bee.",
                             ["color"] = 16711680, -- Red color
                             ["footer"] = {
                                 ["text"] = currentTime
                             }
                         }
-                        SendMessage(url, "", roleIDs)
-                        SendMessageToWebhook2(webhook2, "", globalRoleIDs)
+                        SendMessageEMBED(url, embedViciousGone)
+                        SendMessageEMBED(webhook2, embedViciousGone)
                         sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
                     if not viciousBee then
