@@ -14,9 +14,9 @@ local whitelistedPlayerIDs = {
 }
 
 -- Services
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
-local Workspace = game:GetService("Workspace")
 
 -- Game specific constants
 local PlaceId = game.PlaceId 
@@ -128,6 +128,104 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
+        local function SendMessage(url, message, roleIDs)
+            local headers = {
+                ["Content-Type"] = "application/json"
+            }
+            local data = {
+                ["content"] = message
+            }
+            local body = HttpService:JSONEncode(data)
+            
+            local response1 = request({
+                Url = url,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+
+            if response1 and response1.Success then
+                print("Message sent successfully to URL")
+            else
+                warn("Failed to send message to URL: " .. tostring(response1))
+            end
+
+            -- Ping roles from roleIDs table
+            if roleIDs and next(roleIDs) then
+                local roleMentions = {}
+                for _, roleId in pairs(roleIDs) do
+                    table.insert(roleMentions, "<@&" .. roleId .. ">")
+                end
+                local pingMessage = table.concat(roleMentions, " ")
+                local dataWithPing = {
+                    ["content"] = pingMessage .. "\n" .. message
+                }
+                local bodyWithPing = HttpService:JSONEncode(dataWithPing)
+                
+                local response2 = request({
+                    Url = url,
+                    Method = "POST",
+                    Headers = headers,
+                    Body = bodyWithPing
+                })
+
+                if response2 and response2.Success then
+                    print("Roles pinged successfully on URL")
+                else
+                    warn("Failed to ping roles on URL: " .. tostring(response2))
+                end
+            end
+        end
+
+        local function SendMessageToWebhook2(url, message, roleIDs)
+            local headers = {
+                ["Content-Type"] = "application/json"
+            }
+            local data = {
+                ["content"] = message
+            }
+            local body = HttpService:JSONEncode(data)
+            
+            local response1 = request({
+                Url = webhook2,
+                Method = "POST",
+                Headers = headers,
+                Body = body
+            })
+
+            if response1 and response1.Success then
+                print("Message sent successfully to Webhook2")
+            else
+                warn("Failed to send message to Webhook2: " .. tostring(response1))
+            end
+
+            -- Ping roles from _G.WebhookRoleIds table
+            if _G.WebhookRoleIds and next(_G.WebhookRoleIds) then
+                local roleMentions = {}
+                for _, roleId in pairs(_G.WebhookRoleIds) do
+                    table.insert(roleMentions, "<@&" .. roleId .. ">")
+                end
+                local pingMessage = table.concat(roleMentions, " ")
+                local dataWithPing = {
+                    ["content"] = pingMessage .. "\n" .. message
+                }
+                local bodyWithPing = HttpService:JSONEncode(dataWithPing)
+                
+                local response2 = request({
+                    Url = webhook2,
+                    Method = "POST",
+                    Headers = headers,
+                    Body = bodyWithPing
+                })
+
+                if response2 and response2.Success then
+                    print("Roles pinged successfully on Webhook2")
+                else
+                    warn("Failed to ping roles on Webhook2: " .. tostring(response2))
+                end
+            end
+        end
+
         local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
         local embed = {
@@ -153,6 +251,8 @@ local function CheckWhitelistAndProceed(player)
             }
         }
 
+        local workspace = game:GetService("Workspace")
+
         local fields = {
             {name = "Spider", minX = -115.63, maxX = 24.37, minY = -4.52, maxY = 45.48, minZ = -78.90, maxZ = 61.10},
             {name = "Clover", minX = 100.40, maxX = 210.40, minY = 8.98, maxY = 58.98, minZ = 137.69, maxZ = 247.69},
@@ -163,7 +263,7 @@ local function CheckWhitelistAndProceed(player)
         }
 
         local function findViciousBee()
-            local monsters = Workspace:FindFirstChild("Monsters")
+            local monsters = workspace:FindFirstChild("Monsters")
             if monsters then
                 for _, monster in ipairs(monsters:GetChildren()) do
                     if monster:IsA("Model") and monster.Name:match("^Vicious Bee") then
@@ -185,20 +285,6 @@ local function CheckWhitelistAndProceed(player)
             return "Unknown"
         end
 
-        local function SendMessageEMBED(url, embedData)
-            local headers = {
-                ["Content-Type"] = "application/json"
-            }
-            local body = HttpService:JSONEncode({embed = embedData})
-            
-            local response = HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson)
-            if response then
-                print("Message sent successfully to URL")
-            else
-                warn("Failed to send message to URL: " .. tostring(response))
-            end
-        end
-
         local function monitorViciousBee()
             local viciousBee, beePosition = findViciousBee()
             if viciousBee then
@@ -208,11 +294,27 @@ local function CheckWhitelistAndProceed(player)
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
+                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
+                    SendMessageToWebhook2(url, "<@&" .. globalRoleIDs.gifted .. ">")
+                else
+                    SendMessage(url, "<@&" .. roleIDs.normal .. ">")
+                    SendMessageToWebhook2(url, "<@&" .. globalRoleIDs.normal .. ">")
                 end
                 
-                SendMessageEMBED(url, embed)
-                SendMessageEMBED(webhook2, embed)
+                local response1, response2 = SendMessageEMBED(url, embed)
+                local messageId = nil
+                if response1 and response1.Success then
+                    messageId = response1.message.id
+                else
+                    warn("Failed to send message to URL: " .. tostring(response1))
+                end
                 
+                if response2 and response2.Success then
+                    messageId = response2.message.id
+                else
+                    warn("Failed to send message to Webhook2: " .. tostring(response2))
+                end
+
                 local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
 
                 while true do
@@ -258,3 +360,4 @@ end)
 if game.Players.LocalPlayer then
     CheckWhitelistAndProceed(game.Players.LocalPlayer)
 end
+
