@@ -7,7 +7,7 @@ until game:IsLoaded()
 wait(5)
 
 -- List of whitelisted player IDs
-local whitelistedPlayerIDs = {
+_G.whitelistedPlayerIDs = {
     6190530680, 6190533869, 6190538759, 6190541922, 80299238, -- Me
     6194478155, 6194479885, 6194483501, 6195983246, 6196146993, -- 1204635486266724383
     495592364, -- Fred
@@ -15,18 +15,18 @@ local whitelistedPlayerIDs = {
 }
 
 -- Roblox Services
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
+_G.HttpService = game:GetService("HttpService")
+_G.Players = game:GetService("Players")
+_G.TeleportService = game:GetService("TeleportService")
 
 -- Game specific constants
-local PlaceId = game.PlaceId 
-local Api = "https://games.roblox.com/v1/games/"
-local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
+_G.PlaceId = game.PlaceId 
+_G.Api = "https://games.roblox.com/v1/games/"
+_G.HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 
 -- Discord Webhook URLs
-local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
-local webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
+_G.url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
+_G.webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
 
 -- Remove/Hide decorations
 task.spawn(function() 
@@ -58,9 +58,9 @@ task.spawn(function()
 end)
 
 -- Function to check if a player is whitelisted
-local function IsPlayerWhitelisted(player)
+_G.IsPlayerWhitelisted = function(player)
     local playerID = player.UserId
-    for _, id in ipairs(whitelistedPlayerIDs) do
+    for _, id in ipairs(_G.whitelistedPlayerIDs) do
         if id == playerID then
             return true
         end
@@ -69,8 +69,8 @@ local function IsPlayerWhitelisted(player)
 end
 
 -- Function to list and filter servers
-local function ListAndFilterServers()
-    local serversEndpoint = Api .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+_G.ListAndFilterServers = function()
+    local serversEndpoint = _G.Api .. _G.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     local success, response = pcall(function()
         return game:HttpGet(serversEndpoint)
     end)
@@ -80,7 +80,7 @@ local function ListAndFilterServers()
         return {}
     end
 
-    local servers = HttpService:JSONDecode(response)
+    local servers = _G.HttpService:JSONDecode(response)
     local filteredServers = {}
     
     if servers and servers.data then
@@ -95,9 +95,9 @@ local function ListAndFilterServers()
 end
 
 -- Function to teleport to a random server
-local function TeleportToRandomServer()
-    local plr = game.Players.LocalPlayer
-    local filteredServers = ListAndFilterServers()
+_G.TeleportToRandomServer = function()
+    local plr = _G.Players.LocalPlayer
+    local filteredServers = _G.ListAndFilterServers()
     
     if #filteredServers > 0 then
         local retries = 5
@@ -105,7 +105,7 @@ local function TeleportToRandomServer()
             local randomIndex = math.random(1, #filteredServers)
             local server = filteredServers[randomIndex]
             local success, errorMsg = pcall(function()
-                TeleportService:TeleportToPlaceInstance(PlaceId, server.id, plr)
+                _G.TeleportService:TeleportToPlaceInstance(_G.PlaceId, server.id, plr)
             end)
             
             if success then
@@ -128,12 +128,12 @@ local function TeleportToRandomServer()
 end
 
 -- Function to check the whitelist and proceed
-local function CheckWhitelistAndProceed(player)
+_G.CheckWhitelistAndProceed = function(player)
     local playerName = player.Name
     local playerID = player.UserId
     print("Checking whitelist for player and HWID: " .. playerName .. " (" .. playerID .. ")")
     
-    if IsPlayerWhitelisted(player) then
+    if _G.IsPlayerWhitelisted(player) then
         print("Player " .. playerName .. " (" .. playerID .. ") is whitelisted. Proceeding with the rest of the script.")
 
         -- Cap FPS at 5 and disable 3D rendering
@@ -147,7 +147,7 @@ local function CheckWhitelistAndProceed(player)
         game.Players.PlayerRemoving:Connect(function(removedPlayer)
             if removedPlayer == player then
                 print("Disconnected from server, attempting to teleport to another random server...")
-                TeleportToRandomServer()
+                _G.TeleportToRandomServer()
             end
         end)
 
@@ -158,17 +158,17 @@ local function CheckWhitelistAndProceed(player)
             local data = {
                 ["content"] = message
             }
-            local body = HttpService:JSONEncode(data)
+            local body = _G.HttpService:JSONEncode(data)
             
             local response1 = request({
-                Url = url,
+                Url = _G.url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
             local response2 = request({
-                Url = webhook2,
+                Url = _G.webhook2,
                 Method = "POST",
                 Headers = headers,
                 Body = body
@@ -204,17 +204,17 @@ local function CheckWhitelistAndProceed(player)
                     }
                 }
             }
-            local body = HttpService:JSONEncode(data)
+            local body = _G.HttpService:JSONEncode(data)
             
             local response1 = request({
-                Url = url,
+                Url = _G.url,
                 Method = "POST",
                 Headers = headers,
                 Body = body
             })
 
             local response2 = request({
-                Url = webhook2,
+                Url = _G.webhook2,
                 Method = "POST",
                 Headers = headers,
                 Body = body
@@ -237,12 +237,12 @@ local function CheckWhitelistAndProceed(player)
 
         local embed = {
             ["title"] = "Vicious bee found!",
-            ["description"] = Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
+            ["description"] = _G.Players.LocalPlayer.DisplayName .. " has found a vicious bee.",
             ["color"] = 65280,
             ["fields"] = {
                 {
                     ["name"] = "Profile:",
-                    ["value"] = "https://www.roblox.com/users/" .. Players.LocalPlayer.UserId .. "/profile"
+                    ["value"] = "https://www.roblox.com/users/" .. _G.Players.LocalPlayer.UserId .. "/profile"
                 },
                 {
                     ["name"] = "Field:",
@@ -250,7 +250,7 @@ local function CheckWhitelistAndProceed(player)
                 },
                 {
                     ["name"] = "HWID:",
-                    ["value"] = HWID
+                    ["value"] = _G.HWID
                 }
             },
             ["footer"] = {
@@ -300,10 +300,10 @@ local function CheckWhitelistAndProceed(player)
                 
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
-                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
+                    embed.description = _G.Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                 else
                     embed.title = "Vicious bee found!"
-                    embed.description = Players.LocalPlayer.DisplayName .. " has found a vicious bee."
+                    embed.description = _G.Players.LocalPlayer.DisplayName .. " has found a vicious bee."
                 end
                 
                 SendMessageEMBED(embed)
@@ -315,7 +315,7 @@ local function CheckWhitelistAndProceed(player)
                     if not viciousBee and not sentViciousGoneMessage then
                         local embedViciousGone = {
                             ["title"] = "Vicious bee gone!",
-                            ["description"] = Players.LocalPlayer.DisplayName .. " has no vicious bee.",
+                            ["description"] = _G.Players.LocalPlayer.DisplayName .. " has no vicious bee.",
                             ["color"] = 16711680, -- Red color
                             ["footer"] = {
                                 ["text"] = currentTime
@@ -331,10 +331,10 @@ local function CheckWhitelistAndProceed(player)
                     wait(10) -- Check every 10 seconds
                 end
 
-                TeleportToRandomServer()  -- Teleport to a random server after vicious bee disappears
+                _G.TeleportToRandomServer()  -- Teleport to a random server after vicious bee disappears
             else
                 wait(5)
-                TeleportToRandomServer()  -- Teleport to a random server if no vicious bee is found
+                _G.TeleportToRandomServer()  -- Teleport to a random server if no vicious bee is found
             end
         end
 
@@ -348,17 +348,17 @@ end
 if _G.Key == "1234abc" then
     game.Players.PlayerAdded:Connect(function(player)
         if player == game.Players.LocalPlayer then
-            CheckWhitelistAndProceed(player)
+            _G.CheckWhitelistAndProceed(player)
         end
     end)
 
     if game.Players.LocalPlayer then
-        CheckWhitelistAndProceed(game.Players.LocalPlayer)
+        _G.CheckWhitelistAndProceed(game.Players.LocalPlayer)
     end
 
     -- Teleport after 2 minutes
     delay(120, function()
-        TeleportToRandomServer()
+        _G.TeleportToRandomServer()
     end)
 else
     warn("Invalid key! Script will not run.")
