@@ -1,24 +1,18 @@
+-- Wait until the game is fully loaded and specific UI elements are present
 repeat 
-	task.wait() 
+    task.wait() 
 until game:IsLoaded() 
-	and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
-	and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+    and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
+    and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
 
+-- List of whitelisted player IDs
 local whitelistedPlayerIDs = {
-    6190530680, -- me
-    6190533869, --
-    6190538759, --
-    6190541922, --
-    80299238, --
-    6194478155, -- 1204635486266724383
-    6194479885, --
-    6194483501, --
-    6195983246, --
-    6196146993, --
-    495592364, -- fred
+    6190530680, 6190533869, 6190538759, 6190541922, 80299238, -- Me
+    6194478155, 6194479885, 6194483501, 6195983246, 6196146993, -- 1204635486266724383
+    495592364, -- Fred
 }
 
--- Services
+-- Roblox Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
@@ -28,9 +22,38 @@ local PlaceId = game.PlaceId
 local Api = "https://games.roblox.com/v1/games/"
 local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 
--- Discord Webhook URLs (replace with your actual webhook URLs)
+-- Discord Webhook URLs
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 local webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
+
+-- Remove/Hide decorations
+task.spawn(function() 
+    for _, v in pairs(workspace.Decorations.Misc:GetDescendants()) do
+        if v.Parent.Name == "Mushroom" then
+            v.CanCollide = false
+            v.Transparency = 0.3
+        end
+    end
+    for _,v in pairs(workspace.MonsterBarriers:GetChildren()) do
+        v.CanCollide = false
+    end
+    for _,v in pairs(workspace.Paths:GetChildren()) do
+        v.CanCollide = false
+    end
+    for _, v in pairs(temptable.fieldDecosFolder:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.CanCollide = false
+            v.Transparency = 0.3
+        end
+    end
+    for _, v in pairs(workspace.Decorations:GetDescendants()) do
+        if v:IsA("BasePart") and (v.Parent.Name == "Bush" or v.Parent.Name == "Blue Flower") then
+            v.CanCollide = false
+            v.Transparency = 0.3
+        end
+    end
+    workspace.Gates["15 Bee Gate"].Frame.CanCollide = false
+end)
 
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
