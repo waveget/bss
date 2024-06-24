@@ -28,7 +28,7 @@ local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 -- Discord Webhook URLs (replace with your actual webhook URLs)
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 local webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
- 
+
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
@@ -123,7 +123,7 @@ local function CheckWhitelistAndProceed(player)
             end
         end)
 
-        local function SendMessage(url, message)
+        local function SendMessage(message)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -159,7 +159,7 @@ local function CheckWhitelistAndProceed(player)
             end
         end
 
-        local function SendMessageEMBED(url, embed)
+        local function SendMessageEMBED(embed)
             local headers = {
                 ["Content-Type"] = "application/json"
             }
@@ -278,19 +278,7 @@ local function CheckWhitelistAndProceed(player)
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a vicious bee."
                 end
                 
-                local response1, response2 = SendMessageEMBED(url, embed, true)
-                local messageId = nil
-                if response1 and response1.Success then
-                    messageId = response1.message.id
-                else
-                    warn("Failed to send message to URL: " .. tostring(response1))
-                end
-                
-                if response2 and response2.Success then
-                    messageId = response2.message.id
-                else
-                    warn("Failed to send message to Webhook2: " .. tostring(response2))
-                end
+                SendMessageEMBED(embed)
 
                 local sentViciousGoneMessage = false  -- Flag to track if we already sent the "Vicious bee gone!" message
 
@@ -306,7 +294,7 @@ local function CheckWhitelistAndProceed(player)
                             }
                         }
                         wait(1)
-                        SendMessageEMBED(url, embedViciousGone, true)
+                        SendMessageEMBED(embedViciousGone)
                         sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
                     if not viciousBee then
