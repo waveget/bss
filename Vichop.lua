@@ -1,5 +1,8 @@
-repeat wait() until game:IsLoaded()
-wait(5)
+repeat 
+	task.wait() 
+until game:IsLoaded() 
+	and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
+	and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
 
 local whitelistedPlayerIDs = {
     6190530680, -- me
