@@ -275,7 +275,7 @@ local function CheckWhitelistAndProceed(player)
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                 else
                     embed.title = "Vicious bee found!"
-                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
+                    embed.description = Players.LocalPlayer.DisplayName .. " has found a vicious bee."
                 end
                 
                 local response1, response2 = SendMessageEMBED(url, embed, true)
