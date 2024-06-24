@@ -4,6 +4,7 @@ repeat
 until game:IsLoaded() 
     and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui") 
     and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+wait(5)
 
 -- List of whitelisted player IDs
 local whitelistedPlayerIDs = {
