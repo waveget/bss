@@ -293,9 +293,9 @@ local function CheckWhitelistAndProceed(player)
                                 ["text"] = currentTime
                             }
                         }
+                        sentViciousGoneMessage = true  -- Update flag to true once we send the message
                         wait(1)
                         SendMessageEMBED(embedViciousGone)
-                        sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
                     if not viciousBee then
                         break
