@@ -1,5 +1,5 @@
 repeat wait() until game:IsLoaded()
-wait(3)
+wait(5)
 
 local whitelistedPlayerIDs = {
     6190530680, -- me
@@ -28,13 +28,7 @@ local HWID = game:GetService("RbxAnalyticsService"):GetClientId()
 -- Discord Webhook URLs (replace with your actual webhook URLs)
 local url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 local webhook2 = _G.Webhook  -- Assuming _G.Webhook holds the second webhook URL
-
--- Role IDs for notifications
-local roleIDs = {
-    normal = "1253237631072866326",
-    gifted = "1253392095109054617"
-}
-
+ 
 -- Function to check if a player is whitelisted
 local function IsPlayerWhitelisted(player)
     local playerID = player.UserId
@@ -279,9 +273,9 @@ local function CheckWhitelistAndProceed(player)
                 if viciousBee.Name:match("Gifted") then
                     embed.title = "Gifted vicious bee found!"
                     embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
-                    SendMessage(url, "<@&" .. roleIDs.gifted .. ">")
                 else
-                    SendMessage(url, "<@&" .. roleIDs.normal .. ">")
+                    embed.title = "Vicious bee found!"
+                    embed.description = Players.LocalPlayer.DisplayName .. " has found a gifted vicious bee."
                 end
                 
                 local response1, response2 = SendMessageEMBED(url, embed, true)
@@ -311,6 +305,7 @@ local function CheckWhitelistAndProceed(player)
                                 ["text"] = currentTime
                             }
                         }
+                        wait(1)
                         SendMessageEMBED(url, embedViciousGone, true)
                         sentViciousGoneMessage = true  -- Update flag to true once we send the message
                     end
