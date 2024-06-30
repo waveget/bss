@@ -345,7 +345,7 @@ _G.CheckWhitelistAndProceed = function(player)
 end
 
 -- Only proceed if _G.Key is valid
-if _G.Key == "1234abc" then
+if _G.Key == "HudsonFeetPics" then
     game.Players.PlayerAdded:Connect(function(player)
         if player == game.Players.LocalPlayer then
             _G.CheckWhitelistAndProceed(player)
