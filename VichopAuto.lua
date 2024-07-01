@@ -349,12 +349,12 @@ _G.CheckWhitelistAndProceed = function(player)
         Body = body
     })
 
-    if response1 and response1.Success then
-        print("Embed sent successfully to URL")
+--[[    if response1 and response1.Success then
+       print("Embed sent successfully to URL")
     else
-        warn("Failed to send embed to URL: " .. tostring(response1))
+       warn("Failed to send embed to URL: " .. tostring(response1))
     end
-end
+end --]]
 
 local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
