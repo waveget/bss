@@ -83,9 +83,9 @@ local function moveInSquare()
         EasyPath:WalkToPath({
             Destination = waypoint,
             PathOffset = Vector3.new(0, 0, 0),
-            DebugMode = true,
-            StrongAnticheat = false,
-            VisualPath = true,
+            DebugMode = false,
+            StrongAnticheat = true,
+            VisualPath = false,
             VisualPathSize = Vector3.new(1, 1, 1),
             VisualPathColor = Color3.fromRGB(255, 0, 0),
             VisualPathOffset = Vector3.new(0, 0, 0),
