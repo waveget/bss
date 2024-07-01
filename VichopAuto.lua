@@ -76,9 +76,9 @@ local function moveInSquare()
         EasyPath:WalkToPath({
             Destination = waypoint,
             PathOffset = Vector3.new(0, 0, 0),
-            DebugMode = true,
-            StrongAnticheat = false,
-            VisualPath = true,
+            DebugMode = false,
+            StrongAnticheat = true,
+            VisualPath = false,
             VisualPathSize = Vector3.new(1, 1, 1),
             VisualPathColor = Color3.fromRGB(255, 0, 0),
             VisualPathOffset = Vector3.new(0, 0, 0),
@@ -342,12 +342,12 @@ _G.CheckWhitelistAndProceed = function(player)
         Body = body
     })
 
-    if response1 and response1.Success then
+--[[    if response1 and response1.Success then
         print("Embed sent successfully to URL")
     else
         warn("Failed to send embed to URL: " .. tostring(response1))
     end
-end
+end --]]
 
 local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
