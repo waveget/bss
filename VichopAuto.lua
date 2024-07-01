@@ -350,7 +350,7 @@ _G.CheckWhitelistAndProceed = function(player)
     else
        print("C")
     end
-end -
+end
 
 local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
