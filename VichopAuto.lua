@@ -1,11 +1,7 @@
 repeat
     task.wait()
 until game:IsLoaded() 
-    and game:GetService("Players").LocalPlayer
-    and game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    and game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("ScreenGui")
-    and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui:FindFirstChild("LoadingMessage")
-    and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
+wait(5) 
 
     
 -- List of whitelisted player IDs
@@ -349,12 +345,12 @@ _G.CheckWhitelistAndProceed = function(player)
         Body = body
     })
 
---[[    if response1 and response1.Success then
-       print("Embed sent successfully to URL")
+    if response1 and response1.Success then
+       print("U")
     else
-       warn("Failed to send embed to URL: " .. tostring(response1))
+       print("C")
     end
-end --]]
+end -
 
 local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
