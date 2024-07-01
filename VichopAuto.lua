@@ -7,7 +7,15 @@ until game:IsLoaded()
     and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui:FindFirstChild("LoadingMessage")
     and game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.LoadingMessage.Visible == false
 
-_G.whitelistedPlayerIDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/whitelist.txt"))()
+    
+-- List of whitelisted player IDs
+_G.whitelistedPlayerIDs = {
+    6190530680, 6190533869, 6190538759, 6190541922, 80299238, -- Me
+    6194478155, 6194479885, 6194483501, 6195983246, 6196146993, -- 1204635486266724383
+    495592364, -- Fred
+    6199374954, -- Bacon
+    6200961988, -- Nihal
+}	
 
 local EasyPath = loadstring(game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/pathfinding"))()
 local PathfindingService = game:GetService('PathfindingService')
@@ -28,7 +36,6 @@ _G.TeleportService = game:GetService("TeleportService")
 _G.PlaceId = game.PlaceId
 _G.Api = "https://games.roblox.com/v1/games/"
 _G.HWID = game:GetService("RbxAnalyticsService"):GetClientId()
-_G.Key = "1234abc"
 _G.url = "https://discord.com/api/webhooks/1253107820472172626/q_Uotmsj_J5fZoG-IoKhe-ALliWMF6BU8XcDthTEErI2PJmnE7VmU75cG_AeJPlLxk_O"
 
 local TweenService = game:GetService("TweenService")  -- Added TweenService
@@ -76,9 +83,9 @@ local function moveInSquare()
         EasyPath:WalkToPath({
             Destination = waypoint,
             PathOffset = Vector3.new(0, 0, 0),
-            DebugMode = false,
-            StrongAnticheat = true,
-            VisualPath = false,
+            DebugMode = true,
+            StrongAnticheat = false,
+            VisualPath = true,
             VisualPathSize = Vector3.new(1, 1, 1),
             VisualPathColor = Color3.fromRGB(255, 0, 0),
             VisualPathOffset = Vector3.new(0, 0, 0),
@@ -342,12 +349,12 @@ _G.CheckWhitelistAndProceed = function(player)
         Body = body
     })
 
---[[    if response1 and response1.Success then
+    if response1 and response1.Success then
         print("Embed sent successfully to URL")
     else
         warn("Failed to send embed to URL: " .. tostring(response1))
     end
-end --]]
+end
 
 local currentTime = os.date("%Y-%m-%d %H:%M:%S", os.time())
 
