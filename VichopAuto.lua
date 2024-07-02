@@ -1,4 +1,6 @@
-repeat task.wait() until game:IsLoaded()
+repeat
+    task.wait()
+until game:IsLoaded() 
 wait(5) 
 
     
@@ -43,6 +45,7 @@ local function tp(targetPos, onComplete, speed)
     local player = game.Players.LocalPlayer
     local character = player.Character
     if character then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = true
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
         local currentPosition = humanoidRootPart.Position
         local distance = (targetPos - currentPosition).magnitude
@@ -55,6 +58,7 @@ local function tp(targetPos, onComplete, speed)
         tween.Completed:Connect(function()
             if onComplete then
                 onComplete()
+                game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
             end
         end)
     else
