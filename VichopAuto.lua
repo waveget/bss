@@ -10,7 +10,7 @@
             6194478155, 6194479885, 6194483501, 6195983246, 6196146993, 2329338095, -- 1204635486266724383
             495592364, -- Fred
             6199374954, -- Bacon
-            6200961988, -- Nihal
+            6200961988, 953802365, -- Nihal
         }	
         
         local EasyPath = loadstring(game:HttpGet("https://raw.githubusercontent.com/surhan1/bss/main/pathfinding"))()
